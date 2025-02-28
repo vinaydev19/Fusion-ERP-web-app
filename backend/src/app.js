@@ -17,7 +17,10 @@ app.use(express.static("public"));
 
 // import router
 import userRouter from "./routes/user.routes.js";
-console.log("User router loaded");
+import productRouter from "./routes/products.routes.js";
+
+// router use
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/product", productRouter);
 
 export { app };

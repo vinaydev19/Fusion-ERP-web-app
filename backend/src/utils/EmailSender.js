@@ -7,7 +7,7 @@ import {
 const sendVerificationCode = async (email, verificationCode) => {
   try {
     const response = await mailTransporter.sendMail({
-      from: `"Fusion ERP" <vinaykumarporandla19@gmail.com>`,
+      from: `"Fusion ERP" <fusionerp01@gmail.com>`,
       to: email,
       subject: "Verify your Email",
       text: "verify your Email",
@@ -27,7 +27,7 @@ const sendVerificationCode = async (email, verificationCode) => {
 const sendWelcomeEmail = async (email, name) => {
   try {
     const response = await mailTransporter.sendMail({
-      from: `"Fusion ERP" <vinaykumarporandla19@gmail.com>`,
+      from: `"Fusion ERP" <fusionerp01@gmail.com>`,
       to: email,
       subject: "Welcome Email",
       text: "Welcome Email",
@@ -44,7 +44,7 @@ const sendWelcomeEmail = async (email, name) => {
 const resetPasswordEmail = async (email, resetLink) => {
   try {
     const response = await mailTransporter.sendMail({
-      from: `"Fusion ERP" <vinaykumarporandla19@gmail.com>`,
+      from: `"Fusion ERP" <fusionerp01@gmail.com>`,
       to: email,
       subject: "Reset Your Password",
       text: "Reset Your Password",
@@ -61,7 +61,7 @@ const resetPasswordEmail = async (email, resetLink) => {
 const resetPasswordConfirmationEmail = async (email, name) => {
   try {
     const response = await mailTransporter.sendMail({
-      from: `"Fusion ERP" <vinaykumarporandla19@gmail.com>`,
+      from: `"Fusion ERP" <fusionerp01@gmail.com>`,
       to: email,
       subject: "Password Reset Successful",
       text: "Password Reset Successful",
