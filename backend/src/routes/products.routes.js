@@ -17,13 +17,17 @@ router
   .route("/create-product")
   .post(verifyJWT, upload.single("productImage"), createProductItem);
 router.route("/get-all-product").get(verifyJWT, getAllProduct);
-router.route("/get-one-product/:productDocsId").get(verifyJWT, getOneProduct);
 router
-  .route("/update-product/:productDocsId")
+  .route("/get-one-product/:productMongodbId")
+  .get(verifyJWT, getOneProduct);
+router
+  .route("/update-product/:productMongodbId")
   .patch(verifyJWT, updateProductDetails);
-router.route("/delete-product/:productDocsId").delete(verifyJWT, deleteProduct);
 router
-  .route("update-product-image")
+  .route("/delete-product/:productMongodbId")
+  .delete(verifyJWT, deleteProduct);
+router
+  .route("/update-product-image/:productMongodbId")
   .patch(verifyJWT, upload.single("productImage"), updateProductImage);
 
 export default router;

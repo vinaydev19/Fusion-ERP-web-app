@@ -79,7 +79,7 @@ const createProductItem = asyncHandler(async (req, res) => {
   }
 
   return res
-    .Status(200)
+    .status(200)
     .json(new ApiResponse(200, { product }, "product add successfully"));
 });
 
@@ -97,17 +97,23 @@ const getAllProduct = asyncHandler(async (req, res) => {
 const getOneProduct = asyncHandler(async (req, res) => {
   const productMongodbId = req.params.productMongodbId;
 
-  const product = await Product.findById(productMongodbId);
+  const product = await Product.findOne(productMongodbId);
+
+  if (!product) {
+    throw new ApiError(401, "product not found");
+  }
 
   return res
     .status(200)
-    .json(new ApiResponse(200, product, "fetch one product successfully"));
+    .json(new ApiResponse(200, { product }, "fetch one product successfully"));
 });
 
 const deleteProduct = asyncHandler(async (req, res) => {
   const productMongodbId = req.params.productMongodbId;
 
   const product = await Product.findByIdAndDelete(productMongodbId);
+
+  console.log(product);
 
   return res
     .status(200)
@@ -130,11 +136,19 @@ const updateProductImage = asyncHandler(async (req, res) => {
     throw new ApiError(403, "something want wrong while upload profile Pic");
   }
 
+  const product = await Product.findById(productMongodbId);
+  if (!product) {
+    throw new ApiError(404, "Product not found");
+  }
+
+  console.log(cloudinaryProductImage);
+  console.log(cloudinaryProductImage.url);
+
   const productImage = await Product.findByIdAndUpdate(
     productMongodbId,
     {
       $set: {
-        productImage: cloudinaryProductImage.url,
+        ProductImage: cloudinaryProductImage.url,
       },
     },
     {
@@ -154,13 +168,7 @@ const updateProductImage = asyncHandler(async (req, res) => {
 });
 
 const updateProductDetails = asyncHandler(async (req, res) => {
-  const productMongodbId = req.params.productMongodbId;
-
-  const existingProduct = await Product.findById(productMongodbId);
-  if (!existingProduct) {
-    throw new ApiError(404, "Product not found");
-  }
-
+  const productDocsId = req.params.productMongodbId;
   const {
     ProductId,
     ProductName,
@@ -177,44 +185,50 @@ const updateProductDetails = asyncHandler(async (req, res) => {
     SupplierName,
   } = req.body;
 
-  const updatedFields = {};
-
-  if (ProductId && ProductId !== existingProduct.ProductId)
-    updatedFields.ProductId = ProductId;
-  if (ProductName && ProductName !== existingProduct.ProductName)
-    updatedFields.ProductName = ProductName;
-  if (Category && Category !== existingProduct.Category)
-    updatedFields.Category = Category;
-  if (Description && Description !== existingProduct.Description)
-    updatedFields.Description = Description;
-  if (Quantity && Quantity !== existingProduct.Quantity)
-    updatedFields.Quantity = Quantity;
-  if (ExpirationDate && ExpirationDate !== existingProduct.ExpirationDate)
-    updatedFields.ExpirationDate = ExpirationDate;
-  if (CostPrice && CostPrice !== existingProduct.CostPrice)
-    updatedFields.CostPrice = CostPrice;
-  if (SellingPrice && SellingPrice !== existingProduct.SellingPrice)
-    updatedFields.SellingPrice = SellingPrice;
-  if (Notes && Notes !== existingProduct.Notes) updatedFields.Notes = Notes;
-  if (DateAdded && DateAdded !== existingProduct.DateAdded)
-    updatedFields.DateAdded = DateAdded;
-  if (Warehouse && Warehouse !== existingProduct.Warehouse)
-    updatedFields.Warehouse = Warehouse;
-  if (Status && Status !== existingProduct.Status)
-    updatedFields.Status = Status;
-  if (SupplierName && SupplierName !== existingProduct.SupplierName)
-    updatedFields.SupplierName = SupplierName;
-
-  if (Object.keys(updatedFields).length === 0) {
-    return res
-      .status(200)
-      .json(new ApiResponse(200, existingProduct, "No changes detected"));
+  if (
+    [
+      ProductId,
+      ProductName,
+      Category,
+      Description,
+      Quantity,
+      ExpirationDate,
+      CostPrice,
+      SellingPrice,
+      Notes,
+      DateAdded,
+      Warehouse,
+      Status,
+      SupplierName,
+    ].every(
+      (field) => field === undefined || field === null || field.trim() === ""
+    )
+  ) {
+    throw new ApiError(403, "At least one field is required to update");
   }
 
-  const updatedProduct = await Product.findByIdAndUpdate(
-    productMongodbId,
-    { $set: updatedFields },
-    { new: true }
+  const updateProduct = await Product.findByIdAndUpdate(
+    productDocsId,
+    {
+      $set: {
+        ProductId,
+        ProductName,
+        Category,
+        Description,
+        Quantity,
+        ExpirationDate,
+        CostPrice,
+        SellingPrice,
+        Notes,
+        DateAdded,
+        Warehouse,
+        Status,
+        SupplierName,
+      },
+    },
+    {
+      new: true,
+    }
   );
 
   return res
@@ -222,8 +236,8 @@ const updateProductDetails = asyncHandler(async (req, res) => {
     .json(
       new ApiResponse(
         200,
-        updatedProduct,
-        "Product details updated successfully"
+        { updateProduct },
+        "account details are updated successfully"
       )
     );
 });
