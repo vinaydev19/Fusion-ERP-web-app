@@ -1,5 +1,9 @@
 import { mailTransporter } from "./EmailConfig.js";
 import {
+  Email_Change_Confirmation_Email,
+  Email_Change_Verification_Template,
+  Password_Reset_Confirmation_Email,
+  Reset_Password_Email_Template,
   Verification_Email_Template,
   Welcome_Email_Template,
 } from "./EmailTemplate.js";
@@ -41,16 +45,19 @@ const sendWelcomeEmail = async (email, name) => {
   }
 };
 
-const resetPasswordEmail = async (email, resetLink) => {
+const resetPasswordEmail = async (email, verificationCode) => {
   try {
     const response = await mailTransporter.sendMail({
       from: `"Fusion ERP" <fusionerp01@gmail.com>`,
       to: email,
       subject: "Reset Your Password",
       text: "Reset Your Password",
-      html: resetPasswordEmail.replace("{resetLink}", resetLink),
+      html: Reset_Password_Email_Template.replace(
+        "{verificationCode}",
+        verificationCode
+      ),
     });
-    console.log("password reset link send to your email", response);
+    console.log("verification code send to your email", response);
   } catch (error) {
     console.log(
       `something want wrong while send the reset password link || ${error}`
@@ -65,7 +72,44 @@ const resetPasswordConfirmationEmail = async (email, name) => {
       to: email,
       subject: "Password Reset Successful",
       text: "Password Reset Successful",
-      html: resetPasswordEmail.replace("{name}", name),
+      html: Password_Reset_Confirmation_Email.replace("{name}", name),
+    });
+    console.log("password reset successful", response);
+  } catch (error) {
+    console.log(
+      `something want wrong while send the reset password link || ${error}`
+    );
+  }
+};
+
+const ChangeEmailVerification = async (email, verificationCode) => {
+  try {
+    const response = await mailTransporter.sendMail({
+      from: `"Fusion ERP" <fusionerp01@gmail.com>`,
+      to: email,
+      subject: "Verify your Email",
+      text: "verify your Email",
+      html: Email_Change_Verification_Template.replace(
+        "{verificationCode}",
+        verificationCode
+      ),
+    });
+    console.log("Email send Successfully", response);
+  } catch (error) {
+    console.log(
+      `something want wrong while send the verification code || ${error}`
+    );
+  }
+};
+
+const emailChangeConfirmation = async (email, name) => {
+  try {
+    const response = await mailTransporter.sendMail({
+      from: `"Fusion ERP" <fusionerp01@gmail.com>`,
+      to: email,
+      subject: "Password Reset Successful",
+      text: "Password Reset Successful",
+      html: Email_Change_Confirmation_Email.replace("{name}", name),
     });
     console.log("password reset successful", response);
   } catch (error) {
@@ -80,4 +124,6 @@ export {
   sendWelcomeEmail,
   resetPasswordEmail,
   resetPasswordConfirmationEmail,
+  emailChangeConfirmation,
+  ChangeEmailVerification,
 };

@@ -175,14 +175,13 @@ export const Reset_Password_Email_Template = `
   <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Fusion ERP - Reset Your Password</title>
+      <title>Fusion ERP - Verify Your Email</title>
       <style>
           body {
               font-family: Arial, sans-serif;
               margin: 0;
               padding: 0;
               background-color: #f4f4f4;
-              color: #333;
           }
           .container {
               max-width: 600px;
@@ -203,25 +202,21 @@ export const Reset_Password_Email_Template = `
           }
           .content {
               padding: 25px;
+              color: #333;
               line-height: 1.8;
-              display: flex;
-              flex-direction: column;
           }
-          .reset-link {
-              display: inline-block;
-              padding: 12px 25px;
+          .verification-code {
+              display: block;
               margin: 20px 0;
-              background-color: #007BFF;
-              color: white;
-              text-decoration: none;
-              border-radius: 5px;
+              font-size: 22px;
+              color: #007BFF;
+              background: #e8f0ff;
+              border: 1px dashed #007BFF;
+              padding: 10px;
               text-align: center;
-              font-size: 16px;
+              border-radius: 5px;
               font-weight: bold;
-              transition: background-color 0.3s;
-          }
-          .reset-link:hover {
-              background-color: #0056b3;
+              letter-spacing: 2px;
           }
           .footer {
               background-color: #f4f4f4;
@@ -238,12 +233,11 @@ export const Reset_Password_Email_Template = `
   </head>
   <body>
       <div class="container">
-          <div class="header">Fusion ERP - Reset Your Password</div>
+          <div class="header">Fusion ERP - Verify Your Email</div>
           <div class="content">
-              <p>Hello {name},</p>
-              <p>We received a request to reset your password for <strong>Fusion ERP</strong>. Click the button below or link to set a new password:</p>
-              <a href="{resetLink}">{resetLink}</a>
-              <a href="{resetLink}" class="reset-link">Reset Password</a>
+              <p>Hello,</p>
+              <p>We received a request to reset your password for <strong>Fusion ERP</strong>. by entering the code below:</p>
+              <span class="verification-code">{verificationCode}</span>
               <p>If you didn’t request a password reset, you can safely ignore this email.</p>
               <p>For further assistance, feel free to contact our support team.</p>
           </div>
@@ -310,6 +304,152 @@ export const Password_Reset_Confirmation_Email = `
           <div class="content">
               <p>Hello {name},</p>
               <p>Your password has been successfully reset. You can now log in using your new password.</p>
+              <p>If you did not request this change, please contact our support team immediately.</p>
+              <p>Stay secure,</p>
+              <p><strong>Fusion ERP Team</strong></p>
+          </div>
+          <div class="footer">
+              <p>&copy; ${new Date().getFullYear()} Fusion ERP. All rights reserved.</p>
+          </div>
+      </div>
+  </body>
+  </html>
+`;
+
+export const Email_Change_Verification_Template = `
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Fusion ERP - Verify Your New Email</title>
+      <style>
+          body {
+              font-family: Arial, sans-serif;
+              margin: 0;
+              padding: 0;
+              background-color: #f4f4f4;
+          }
+          .container {
+              max-width: 600px;
+              margin: 30px auto;
+              background: #ffffff;
+              border-radius: 8px;
+              box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+              overflow: hidden;
+              border: 1px solid #ddd;
+          }
+          .header {
+              background-color: #007BFF;
+              color: white;
+              padding: 20px;
+              text-align: center;
+              font-size: 26px;
+              font-weight: bold;
+          }
+          .content {
+              padding: 25px;
+              color: #333;
+              line-height: 1.8;
+          }
+          .verification-code {
+              display: block;
+              margin: 20px 0;
+              font-size: 22px;
+              color: #007BFF;
+              background: #e8f0ff;
+              border: 1px dashed #007BFF;
+              padding: 10px;
+              text-align: center;
+              border-radius: 5px;
+              font-weight: bold;
+              letter-spacing: 2px;
+          }
+          .footer {
+              background-color: #f4f4f4;
+              padding: 15px;
+              text-align: center;
+              color: #777;
+              font-size: 12px;
+              border-top: 1px solid #ddd;
+          }
+          p {
+              margin: 0 0 15px;
+          }
+      </style>
+  </head>
+  <body>
+      <div class="container">
+          <div class="header">Fusion ERP - Verify Your New Email</div>
+          <div class="content">
+              <p>Hello,</p>
+              <p>You have requested to change your email address for your <strong>Fusion ERP</strong> account. To proceed, please verify your new email address by entering the code below:</p>
+              <span class="verification-code">{verificationCode}</span>
+              <p>If you did not request this change, please ignore this email or contact our support team immediately.</p>
+          </div>
+          <div class="footer">
+              <p>&copy; ${new Date().getFullYear()} Fusion ERP. All rights reserved.</p>
+          </div>
+      </div>
+  </body>
+  </html>
+`;
+
+export const Email_Change_Confirmation_Email = `
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Fusion ERP - Email Change Successful</title>
+      <style>
+          body {
+              font-family: Arial, sans-serif;
+              margin: 0;
+              padding: 0;
+              background-color: #f4f4f4;
+              color: #333;
+          }
+          .container {
+              max-width: 600px;
+              margin: 30px auto;
+              background: #ffffff;
+              border-radius: 8px;
+              box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+              overflow: hidden;
+              border: 1px solid #ddd;
+          }
+          .header {
+              background-color: #007BFF;
+              color: white;
+              padding: 20px;
+              text-align: center;
+              font-size: 26px;
+              font-weight: bold;
+          }
+          .content {
+              padding: 25px;
+              line-height: 1.8;
+          }
+          .footer {
+              background-color: #f4f4f4;
+              padding: 15px;
+              text-align: center;
+              color: #777;
+              font-size: 12px;
+              border-top: 1px solid #ddd;
+          }
+          p {
+              margin: 0 0 15px;
+          }
+      </style>
+  </head>
+  <body>
+      <div class="container">
+          <div class="header">Fusion ERP - Email Change Successful</div>
+          <div class="content">
+              <p>Hello {name},</p>
+              <p>Your email address has been successfully updated. From now on, please use your new email address to log in to your account.</p>
               <p>If you did not request this change, please contact our support team immediately.</p>
               <p>Stay secure,</p>
               <p><strong>Fusion ERP Team</strong></p>

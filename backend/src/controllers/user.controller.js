@@ -4,13 +4,14 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import {
+  ChangeEmailVerification,
   resetPasswordConfirmationEmail,
+  resetPasswordEmail,
   sendVerificationCode,
   sendWelcomeEmail,
 } from "../utils/EmailSender.js";
 import jwt from "jsonwebtoken";
 
-// global variable
 const option = {
   httpOnly: true,
   secure: true,
@@ -244,36 +245,19 @@ const resetPasswordEmailVerfication = asyncHandler(async (req, res) => {
     throw new ApiError(400, "user not found");
   }
 
-  let length = 10;
-  let secret = "";
-  let code =
-    "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890!@#$%^&*()[]{}?><,+";
+  let length = 6;
+  let token = "";
+  let code = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890";
   for (let i = 0; i < length; i++) {
     let char = Math.floor(Math.random() * code.length);
-    secret += code[char];
+    token += code[char];
   }
-  console.log(secret);
-
-  TokenExpiresAt = Date.now() + 24 * 60 * 60 * 1000;
-
-  const token = await jwt.sign(
-    {
-      _id: user._id,
-      email: user.email,
-    },
-    secret,
-    {
-      expiresIn: TokenExpiresAt,
-    }
-  );
   console.log(token);
 
-  const resetURL = `http://localhost:8000/api/v1/reset-password-email-verification/resetpassword?id=${user._id}&token=${token}`;
-
   user.resetPasswordToken = token;
-  user.resetPasswordTokenExpiresAt = TokenExpiresAt;
+  user.resetPasswordTokenExpiresAt = Date.now() + 24 * 60 * 60 * 1000;
   await user.save({ validateBeforeSave: false });
-  await resetPasswordEmail(user.email, resetURL);
+  await resetPasswordEmail(user.email, token);
 
   return res
     .status(200)
@@ -281,42 +265,37 @@ const resetPasswordEmailVerfication = asyncHandler(async (req, res) => {
       new ApiResponse(
         200,
         {},
-        "reset Password link send your email please check your inbox"
+        "reset Password code send your email please check your inbox"
       )
     );
 });
 
 const resetPassword = asyncHandler(async (req, res) => {
-  const { userId, token } = req.params;
-  const { password, confirmPassword } = req.body;
+  const { code, password, confirmPassword } = req.body;
 
-  if ((!password, !confirmPassword)) {
-    throw new ApiError(400, "All field are required");
+  if ([code, password, confirmPassword].some((field) => field.trim() === "")) {
+    throw new ApiError(400, "please enter verification code");
   }
 
   if (password !== confirmPassword) {
-    throw new ApiError(
-      400,
-      "confirm password is not match with password, please double check your password"
-    );
+    throw new ApiError(400, "password and confirmPassword not same");
   }
 
-  const user = await User.findById(userId);
+  const user = await User.findOne({
+    resetPasswordToken: code,
+    resetPasswordTokenExpiresAt: { $gt: Date.now() },
+  });
 
   if (!user) {
-    throw new ApiError(401, "user not found");
-  }
-
-  if (
-    !(token === user.resetPasswordToken) &&
-    !(Date.now() < user.resetPasswordTokenExpiresAt)
-  ) {
-    throw new ApiError(400, "invalid or Expired token");
+    throw new ApiError(400, "Inavlid or Expired Code");
   }
 
   user.password = password;
-  await user.save();
+  user.resetPasswordToken = undefined;
+  user.resetPasswordTokenExpiresAt = undefined;
+  await user.save({ validateBeforeSave: false });
   await resetPasswordConfirmationEmail(user.email, user.fullName);
+
   return res
     .status(200)
     .json(new ApiResponse(200, {}, "password has been reset successfully"));
@@ -367,18 +346,18 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 });
 
 const changeCurrentPassword = asyncHandler(async (req, res) => {
-  const { oldPassword, newPassword, confirmPasswrod } = req.body;
+  const { oldPassword, newPassword, confirmPassword } = req.body;
 
   if (
-    [oldPassword, newPassword, confirmPasswrod].some((field) => field === "")
+    [oldPassword, newPassword, confirmPassword].some((field) => field === "")
   ) {
     throw new ApiError(403, "all field are required");
   }
-  if (newPassword !== confirmPasswrod) {
-    throw new ApiError(403, "password and confirmPasswrod should same");
+  if (newPassword !== confirmPassword) {
+    throw new ApiError(403, "password and confirmPasswrod should be same");
   }
 
-  const user = await User.findById(req.user._id);
+  const user = await User.findById(req.user?._id);
 
   if (!user) {
     throw new ApiError(401, "unauthorized, request");
@@ -403,36 +382,6 @@ const getCurrentUser = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .json(new ApiResponse(200, req.user, "User fetched successfully"));
-});
-
-const updateAccountDetails = asyncHandler(async (req, res) => {
-  const { fullName, username, email, phoneNo, companyName } = req.body;
-
-  if (
-    [fullName, username, email, phoneNo, companyName].some(
-      (field) => field.trim() === ""
-    )
-  ) {
-    throw new ApiError(400, "All fields are required");
-  }
-
-  const user = await User.findByIdAndUpdate(
-    req.user?._id,
-    {
-      $set: {
-        fullName,
-        username,
-        email,
-        phoneNo,
-        companyName,
-      },
-    },
-    { new: true }
-  ).select("-password");
-
-  return res
-    .status(200)
-    .json(new ApiResponse(200, user, "Account details updated successfully"));
 });
 
 const profilePicUpdate = asyncHandler(async (req, res) => {
@@ -465,6 +414,107 @@ const profilePicUpdate = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, { user }, "profile Pic is update successfully"));
 });
 
+const updateUserAccountDetails = asyncHandler(async (req, res) => {
+  const { fullName, username, phoneNo, companyName } = req.body;
+
+  if (
+    [fullName, username, phoneNo, companyName].some(
+      (field) => field.trim() === ""
+    )
+  ) {
+    throw new ApiError(400, "All fields are required");
+  }
+
+  const user = await User.findByIdAndUpdate(
+    req.user?._id,
+    {
+      $set: {
+        fullName,
+        username,
+        phoneNo,
+        companyName,
+      },
+    },
+    { new: true }
+  ).select("-password");
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, user, "Account details updated successfully"));
+});
+
+const emailChangeVerification = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  const userId = req.user?._id;
+
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new ApiError(401, "unauthorized request");
+  }
+
+  let emailUpdate;
+
+  if (email && email !== user.email) emailUpdate = email;
+
+  const verficationToken = Math.floor(
+    100000 + Math.random() * 900000
+  ).toString();
+
+  const updateUser = await User.findByIdAndUpdate(
+    req.user?._id,
+    {
+      $set: {
+        isVerified: false,
+        email: emailUpdate,
+        verficationToken,
+        verficationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000,
+      },
+    },
+    {
+      new: true,
+    }
+  ).select("-password -refreshToken");
+
+  await ChangeEmailVerification(updateUser.email, verficationToken);
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { updateUser },
+        "verfication Code send to your email check your inbox"
+      )
+    );
+});
+
+const emailChangeConfirmation = asyncHandler(async (req, res) => {
+  const { code } = req.body;
+
+  if (code.trim() === "") {
+    throw new ApiError(400, "please enter verification code");
+  }
+
+  const user = await User.findOne({
+    verficationToken: code,
+    verficationTokenExpiresAt: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    throw new ApiError(400, "Inavlid or Expired Code");
+  }
+
+  user.isVerified = true;
+  user.verficationToken = undefined;
+  user.verficationTokenExpiresAt = undefined;
+  await user.save({ validateBeforeSave: false });
+  await emailChangeConfirmation(user.email, user.fullName);
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "your email has been changed successfully"));
+});
+
 export {
   userRegister,
   userVerification,
@@ -477,5 +527,7 @@ export {
   getCurrentUser,
   changeCurrentPassword,
   profilePicUpdate,
-  updateAccountDetails,
+  updateUserAccountDetails,
+  emailChangeConfirmation,
+  emailChangeVerification,
 };

@@ -6,18 +6,21 @@ import {
   getAllProduct,
   getOneProduct,
   deleteProduct,
-  updateProduct,
   updateProductImage,
+  updateProductDetails,
 } from "../controllers/products.controller.js";
 
 const router = Router();
 
+console.log("product router");
 router
   .route("/create-product")
   .post(verifyJWT, upload.single("productImage"), createProductItem);
 router.route("/get-all-product").get(verifyJWT, getAllProduct);
 router.route("/get-one-product/:productDocsId").get(verifyJWT, getOneProduct);
-router.route("/update-product/:productDocsId").patch(verifyJWT, updateProduct);
+router
+  .route("/update-product/:productDocsId")
+  .patch(verifyJWT, updateProductDetails);
 router.route("/delete-product/:productDocsId").delete(verifyJWT, deleteProduct);
 router
   .route("update-product-image")
