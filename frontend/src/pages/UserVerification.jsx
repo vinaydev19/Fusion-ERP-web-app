@@ -1,7 +1,43 @@
+import axios from "axios";
+import Loading from "../components/commen/Loading";
 import React, { useState } from "react";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
+import { USER_API_END_POINT } from "../utils/constants";
 
 function UserVerification() {
   const [code, setCode] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const verifyFormHandle = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const res = await axios.post(
+        `${USER_API_END_POINT}/verify-user`,
+        {
+          code,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+      console.log(res);
+      navigate("/login");
+      setIsLoading(false);
+      toast.success(res.data.message);
+    } catch (error) {
+      toast.error(error.response.data.message);
+      console.log(`error on register page || ${error}`);
+      console.log(error);
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="flex flex-col justify-center items-center gap-5 h-screen w-full">
@@ -15,7 +51,10 @@ function UserVerification() {
           Check your spam folder or request a new one.
         </p>
       </div>
-      <form className="flex border-2 p-5  rounded-xl flex-col gap-5 w-3/4 md:w-[35%]">
+      <form
+        onSubmit={verifyFormHandle}
+        className="flex border-2 p-5  rounded-xl flex-col gap-5 w-3/4 md:w-[35%]"
+      >
         <div className="flex flex-col gap-2">
           <label htmlFor="code">Code</label>
           <input
@@ -29,9 +68,18 @@ function UserVerification() {
             onChange={(e) => setCode(e.target.value)}
           ></input>
         </div>
-        <button className="flex justify-center items-center gap-2 bg-blue-700 p-3 text-white rounded-xl">
-          Login
-        </button>
+        {isLoading ? (
+          <button
+            disabled
+            className="flex hover:cursor-pointer justify-center items-center gap-2 bg-blue-700 p-3 text-white rounded-xl"
+          >
+            <Loading color="#000" />
+          </button>
+        ) : (
+          <button className="flex hover:cursor-pointer justify-center items-center gap-2 bg-blue-700 p-3 text-white rounded-xl">
+            Verify
+          </button>
+        )}
       </form>
       <div className="flex gap-1 pb-5">
         <p>Already have an account?</p>

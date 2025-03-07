@@ -1,8 +1,10 @@
 import React, { useRef, useState } from "react";
 import logo from "../assets/logo.jpg";
-import { TextField } from "@mui/material";
-import { FaImages } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { USER_API_END_POINT } from "../utils/constants";
+import Loading from "../components/commen/Loading";
+import toast from "react-hot-toast";
 
 function Register() {
   const [fullName, setFullName] = useState("");
@@ -12,6 +14,46 @@ function Register() {
   const [profilePic, setProfilePic] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const registerFormHandle = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const res = await axios.post(
+        `${USER_API_END_POINT}/register`,
+        {
+          fullName,
+          username,
+          email,
+          phoneNo,
+          companyName,
+          password,
+          confirmPassword,
+          profilePic,
+        },
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true,
+        }
+      );
+      console.log(res);
+      navigate("/register/user-verification");
+      setIsLoading(false);
+      toast.success(res.data.message);
+    } catch (error) {
+      toast.error(error.response.data.message);
+      console.log(`error on register page || ${error}`);
+      console.log(error);
+      setIsLoading(false);
+    }
+  };
+
   return (
     <>
       <div className="flex w-full ">
@@ -21,7 +63,10 @@ function Register() {
         <div className="flex flex-col mt-5 justify-center w-full md:w-2/4 items-center gap-2">
           <h1 className="font-bold text-3xl">Create your account</h1>
           <p className="text-[#9e9c9c]">Enter your details to get started</p>
-          <form className="flex flex-col gap-5 w-[70%]">
+          <form
+            onSubmit={registerFormHandle}
+            className="flex flex-col gap-5 w-[70%]"
+          >
             <div className="flex flex-col gap-2">
               <label htmlFor="fullName">Full Name</label>
               <input
@@ -101,6 +146,19 @@ function Register() {
               ></input>
             </div>
             <div className="flex flex-col gap-2">
+              <label htmlFor="confirmPassword">Confirm Password</label>
+              <input
+                type="password"
+                className="outline-none rounded-xl px-3 py-2 road border-2"
+                placeholder="Enter your Confirm Password"
+                required
+                id="confirmPassword"
+                name="confirmPassword"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              ></input>
+            </div>
+            <div className="flex flex-col gap-2">
               <label htmlFor="profilePic">Profile Picture</label>
               <input
                 type="file"
@@ -111,9 +169,18 @@ function Register() {
                 onChange={(e) => setProfilePic(e.target.files[0])}
               ></input>
             </div>
-            <button className="flex justify-center items-center gap-2 bg-blue-700 p-3 text-white rounded-xl">
-              Create Account
-            </button>
+            {isLoading ? (
+              <button
+                disabled
+                className="flex justify-center items-center gap-2 bg-blue-700 p-3 text-white rounded-xl"
+              >
+                <Loading color="#000" />
+              </button>
+            ) : (
+              <button className="flex hover:cursor-pointer justify-center items-center gap-2 bg-blue-700 p-3 text-white rounded-xl">
+                Create Account
+              </button>
+            )}
           </form>
           <div className="flex gap-1 pb-5">
             <p>Already have an account?</p>

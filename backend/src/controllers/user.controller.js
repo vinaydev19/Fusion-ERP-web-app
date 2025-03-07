@@ -142,7 +142,7 @@ const userVerification = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, "Email Verifed Successfully"));
+    .json(new ApiResponse(200, {}, "Email Verifed Successfully"));
 });
 
 const userLogin = asyncHandler(async (req, res) => {

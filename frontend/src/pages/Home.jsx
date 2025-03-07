@@ -1,9 +1,19 @@
-import React from "react";
-import { Outlet } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Outlet, useNavigate } from "react-router-dom";
 import Sidebar from "../components/commen/Sidebar";
 import Navbar from "../components/commen/Navbar";
 
 function Home() {
+  const navigate = useNavigate();
+
+  // const user = false;
+
+  // useEffect(() => {
+  //   if (!user) {
+  //     navigate("/login");
+  //   }
+  // }, []);
+
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
