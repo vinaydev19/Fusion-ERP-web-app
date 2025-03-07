@@ -45,6 +45,7 @@ const userRegister = asyncHandler(async (req, res) => {
     profilePic,
     companyName,
     password,
+    confirmPassword,
   } = req.body;
 
   if (
@@ -56,9 +57,14 @@ const userRegister = asyncHandler(async (req, res) => {
       profilePic,
       companyName,
       password,
+      confirmPassword,
     ].some((field) => field?.trim() === "")
   ) {
     throw new ApiError(400, "All Field are required");
+  }
+
+  if (password !== confirmPassword) {
+    throw new ApiError(400, "password and confirmPassword is not same");
   }
 
   const existedUser = await User.findOne({ email });

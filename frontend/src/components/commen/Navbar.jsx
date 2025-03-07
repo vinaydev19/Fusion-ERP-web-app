@@ -15,11 +15,11 @@ const Navbar = () => {
   const [notifications, setNotifications] = useState(3);
 
   return (
-    <nav className="h-16 bg-white/90 backdrop-blur-md shadow-md flex justify-between items-center px-5">
+    <nav className="h-16 bg-gray-900 text-white backdrop-blur-md shadow-md flex justify-between items-center px-5">
       {/* Title */}
       <div>
         <h1 className="text-xl font-semibold">
-          <Link to="/dashboard" className="hover:text-gray-500 transition">
+          <Link to="/dashboard" className="hover:text-gray-200 transition">
             Dashboard Overview
           </Link>
         </h1>
@@ -36,22 +36,22 @@ const Navbar = () => {
               alt="User"
             />
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="bg-white text-gray-900 shadow-lg rounded-lg w-44 mr-2">
+          <DropdownMenuContent className=" bg-gray-900 text-white shadow-lg rounded-lg w-44 mr-2">
             <DropdownMenuLabel className="font-semibold text-center p-2">
               My Account
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="hover:bg-gray-200 p-2 rounded-lg transition">
+            <DropdownMenuItem className="hover:bg-gray-200 p-2  hover:cursor-pointer rounded-lg transition">
               <Link to="profile">Profile</Link>
             </DropdownMenuItem>
-            <DropdownMenuItem className="hover:bg-gray-200 p-2 rounded-lg transition">
+            <DropdownMenuItem className="hover:bg-gray-200 p-2 hover:cursor-pointer  rounded-lg transition">
               <Link to="change-password">Change Password</Link>
             </DropdownMenuItem>
-            <DropdownMenuItem className="hover:bg-gray-200 p-2 rounded-lg transition">
+            <DropdownMenuItem className="hover:bg-gray-200 p-2  hover:cursor-pointer rounded-lg transition">
               <Link to="change-email">Change Email</Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="hover:bg-red-500 hover:text-white p-2 rounded-lg transition text-center cursor-pointer">
+            <DropdownMenuItem className="hover:bg-red-500 hover:cursor-pointer  hover:text-white p-2 rounded-lg transition text-center cursor-pointer">
               Logout
             </DropdownMenuItem>
           </DropdownMenuContent>

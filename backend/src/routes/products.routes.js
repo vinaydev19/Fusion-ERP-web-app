@@ -12,7 +12,7 @@ import {
 
 const router = Router();
 
-console.log("product router");
+
 router
   .route("/create-product")
   .post(verifyJWT, upload.single("productImage"), createProductItem);

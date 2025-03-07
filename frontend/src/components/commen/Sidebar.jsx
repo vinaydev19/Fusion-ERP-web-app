@@ -76,7 +76,7 @@ const Sidebar = () => {
             to={item.path}
             className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-700 transition-all"
           >
-            <span className="text-xl">{item.icon}</span>
+            <span className="hover:cursor-pointer text-xl">{item.icon}</span>
             {isOpen && <span>{item.title}</span>}
           </Link>
         ))}

@@ -1,6 +1,7 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import ErrorHandler from "./middlewares/error.middleware.js";
 
 const app = express();
 
@@ -22,5 +23,14 @@ import productRouter from "./routes/products.routes.js";
 // router use
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/product", productRouter);
+
+// Place this after all route definitions
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(err.statusCode || 500).json({
+    success: false,
+    message: err.message || "Internal Server Error",
+  });
+});
 
 export { app };
