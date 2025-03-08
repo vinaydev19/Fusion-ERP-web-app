@@ -20,6 +20,7 @@ import EmailVerification from "./EmailVerification";
 import ResetPassVerification from "./ResetPassVerification";
 import ResetPassword from "./ResetPassword";
 import UserVerification from "./UserVerification";
+import ChangeEmailVerification from "@/components/dashboard/ChangeEmailVerification";
 
 function Body() {
   const router = createBrowserRouter([
@@ -63,7 +64,8 @@ function Body() {
         { path: "purchase-orders", element: <PurchaseOrders /> },
         { path: "change-password", element: <ChangePassword /> },
         { path: "change-email", element: <ChangeEmail /> },
-        { path: "profile", element: <Profile /> },
+        { path: "change-email/change-email-verification", element: <ChangeEmailVerification /> },
+        { path: "profile/:id", element: <Profile /> },
       ],
     },
   ]);

@@ -5,21 +5,20 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import Loading from "../commen/Loading";
 
-function ChangeEmail() {
-  const [email, setEmail] = useState("");
-
+function ChangeEmailVerification() {
+  const [code, setCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const changeEmailVerifyFormHandle = async (e) => {
+  const ChangeEmailVerifyFormHandle = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
       const res = await axios.post(
-        `${USER_API_END_POINT}/update-email-address-verification`,
+        `${USER_API_END_POINT}/update-email-address-confirmation`,
         {
-          email,
+          code,
         },
         {
           headers: {
@@ -29,7 +28,7 @@ function ChangeEmail() {
         }
       );
       console.log(res);
-      navigate("/dashboard/change-email/change-email-verification");
+      navigate("/login");
       setIsLoading(false);
       toast.success(res.data.message);
     } catch (error) {
@@ -39,40 +38,33 @@ function ChangeEmail() {
       setIsLoading(false);
     }
   };
-
   return (
     <div className="flex flex-col justify-center items-center gap-5 h-screen w-full">
       <div className="flex flex-col justify-center items-center gap-2">
-        <h1 className="font-bold text-3xl">Change Your Email Address</h1>
+        <h1 className="font-bold text-3xl">Verify Your Email Change</h1>
         <p className="text-[#372929]">
-          Enter your new email address below to update your account. We'll send
-          a verification code to your new email to confirm the change.
+        We've sent a verification code to your new email address. Please enter the code below to confirm your email update.
         </p>
-        <h1 className="">Important Notes:</h1>
-
-        <ul className="list-disc text-[#372929]">
-          <li>Make sure you enter a valid and accessible email.</li>
-          <li>Check your spam or junk folder if you don’t receive the code.</li>
-          <li>
-            You’ll need to verify your new email before the update is complete.
-          </li>
-        </ul>
+        <h1 className="">Don't see the code?</h1>
+        <p className="text-[#372929]">
+          Check your spam folder or request a new one.
+        </p>
       </div>
       <form
-        onSubmit={changeEmailVerifyFormHandle}
+        onSubmit={ChangeEmailVerifyFormHandle}
         className="flex border-2 p-5  rounded-xl flex-col gap-5 w-3/4 md:w-[35%]"
       >
         <div className="flex flex-col gap-2">
-          <label htmlFor="Email">Email</label>
+          <label htmlFor="code">Code</label>
           <input
             type="text"
-            placeholder="Enter your Email"
+            placeholder="Enter your code"
             required
             className="outline-none rounded-xl px-3 py-2 road border-2"
-            id="Email"
-            name="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            id="code"
+            name="code"
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
           ></input>
         </div>
         {isLoading ? (
@@ -84,12 +76,18 @@ function ChangeEmail() {
           </button>
         ) : (
           <button className="flex hover:cursor-pointer justify-center items-center gap-2 bg-blue-700 p-3 text-white rounded-xl">
-            Change Email
+            Verify
           </button>
         )}
       </form>
+      <div className="flex gap-1 pb-5">
+        <p>Already have an account?</p>
+        <p to="login" className="text-blue-700 hover:underline">
+          Login
+        </p>
+      </div>
     </div>
   );
 }
 
-export default ChangeEmail;
+export default ChangeEmailVerification;

@@ -10,10 +10,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useSelector } from "react-redux";
 
 const Navbar = () => {
+  const { user } = useSelector((state) => state.user);
   const [notifications, setNotifications] = useState(3);
 
+  console.log("user", user.user._id);
   return (
     <nav className="h-16 bg-gray-900 text-white backdrop-blur-md shadow-md flex justify-between items-center px-5">
       {/* Title */}
@@ -42,7 +45,7 @@ const Navbar = () => {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="hover:bg-gray-200 p-2  hover:cursor-pointer rounded-lg transition">
-              <Link to="profile">Profile</Link>
+              <Link to={`profile/${user.user?._id}`}>Profile</Link>
             </DropdownMenuItem>
             <DropdownMenuItem className="hover:bg-gray-200 p-2 hover:cursor-pointer  rounded-lg transition">
               <Link to="change-password">Change Password</Link>

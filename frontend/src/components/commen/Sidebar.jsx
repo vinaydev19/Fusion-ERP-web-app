@@ -13,6 +13,7 @@ import { BiSolidPurchaseTag } from "react-icons/bi";
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(true);
 
+
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
   };

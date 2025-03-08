@@ -359,6 +359,7 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
   ) {
     throw new ApiError(403, "all field are required");
   }
+
   if (newPassword !== confirmPassword) {
     throw new ApiError(403, "password and confirmPasswrod should be same");
   }
@@ -385,9 +386,12 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 });
 
 const getCurrentUser = asyncHandler(async (req, res) => {
+  const id = req.params.userId;
+  const user = await User.findById(id).select("-password -refreshToken");
+
   return res
     .status(200)
-    .json(new ApiResponse(200, req.user, "User fetched successfully"));
+    .json(new ApiResponse(200, { user }, "User fetched successfully"));
 });
 
 const profilePicUpdate = asyncHandler(async (req, res) => {
@@ -456,6 +460,12 @@ const emailChangeVerification = asyncHandler(async (req, res) => {
   const user = await User.findById(userId);
   if (!user) {
     throw new ApiError(401, "unauthorized request");
+  }
+
+  const existedUser = await User.findOne({ email });
+
+  if (existedUser) {
+    throw new ApiError(400, "this email is already registered");
   }
 
   let emailUpdate;
