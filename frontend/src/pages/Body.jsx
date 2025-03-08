@@ -65,7 +65,7 @@ function Body() {
         { path: "change-password", element: <ChangePassword /> },
         { path: "change-email", element: <ChangeEmail /> },
         { path: "change-email/change-email-verification", element: <ChangeEmailVerification /> },
-        { path: "profile/:id", element: <Profile /> },
+        { path: "profile", element: <Profile /> },
       ],
     },
   ]);

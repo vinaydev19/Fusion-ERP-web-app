@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { IoIosNotifications } from "react-icons/io";
 import { Link } from "react-router-dom";
 import avatarImg from "../../assets/avatar.jpeg";
@@ -11,12 +11,27 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useSelector } from "react-redux";
+import useGetMyProfile from "@/hooks/useGetMyProfile";
 
 const Navbar = () => {
-  const { user } = useSelector((state) => state.user);
+  const { user, profile } = useSelector((state) => state.user);
   const [notifications, setNotifications] = useState(3);
 
-  console.log("user", user.user._id);
+  useGetMyProfile();
+
+  const [profileData, setProfileData] = useState({
+    profilePic: avatarImg,
+  });
+
+  useEffect(() => {
+    if (profile) {
+      setProfileData({
+        profilePic: profile.profilePic || avatarImg,
+      });
+    }
+  }, [profile]);
+
+  // console.log("user", user.user._id);
   return (
     <nav className="h-16 bg-gray-900 text-white backdrop-blur-md shadow-md flex justify-between items-center px-5">
       {/* Title */}
@@ -35,7 +50,7 @@ const Navbar = () => {
           <DropdownMenuTrigger className="hover:cursor-pointer">
             <img
               className="w-10 h-10 rounded-full border-2 border-gray-600"
-              src={avatarImg}
+              src={profileData.profilePic}
               alt="User"
             />
           </DropdownMenuTrigger>
@@ -45,7 +60,7 @@ const Navbar = () => {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="hover:bg-gray-200 p-2  hover:cursor-pointer rounded-lg transition">
-              <Link to={`profile/${user.user?._id}`}>Profile</Link>
+              <Link to={`profile`}>Profile</Link>
             </DropdownMenuItem>
             <DropdownMenuItem className="hover:bg-gray-200 p-2 hover:cursor-pointer  rounded-lg transition">
               <Link to="change-password">Change Password</Link>

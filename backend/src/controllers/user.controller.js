@@ -386,12 +386,12 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 });
 
 const getCurrentUser = asyncHandler(async (req, res) => {
-  const id = req.params.userId;
-  const user = await User.findById(id).select("-password -refreshToken");
+  // const id = req.params.userId;
+  // const user = await User.findById(id).select("-password -refreshToken");
 
   return res
     .status(200)
-    .json(new ApiResponse(200, { user }, "User fetched successfully"));
+    .json(new ApiResponse(200, req.user, "User fetched successfully"));
 });
 
 const profilePicUpdate = asyncHandler(async (req, res) => {
@@ -425,10 +425,10 @@ const profilePicUpdate = asyncHandler(async (req, res) => {
 });
 
 const updateUserAccountDetails = asyncHandler(async (req, res) => {
-  const { fullName, username, phoneNo, companyName } = req.body;
+  const { fullName, username, phoneNo, companyName, description } = req.body;
 
   if (
-    [fullName, username, phoneNo, companyName].some(
+    [fullName, username, phoneNo, companyName, description].some(
       (field) => field.trim() === ""
     )
   ) {
@@ -443,6 +443,7 @@ const updateUserAccountDetails = asyncHandler(async (req, res) => {
         username,
         phoneNo,
         companyName,
+        description,
       },
     },
     { new: true }

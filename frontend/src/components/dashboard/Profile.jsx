@@ -1,17 +1,28 @@
 import React, { useEffect, useState } from "react";
-import { Button, Dialog, DialogActions, DialogTitle } from "@mui/material";
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+} from "@mui/material";
 import useGetMyProfile from "@/hooks/useGetMyProfile";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import avatarImg from "../../assets/avatar.jpeg"
+import avatarImg from "../../assets/avatar.jpeg";
+import axios from "axios";
+import { USER_API_END_POINT } from "@/utils/constants";
+import toast from "react-hot-toast";
 
 function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const { user, profile } = useSelector((state) => state.user);
   const { id } = useParams();
 
-  useGetMyProfile(id);
+  // console.log(`profile`, profile);
 
+  useGetMyProfile();
 
   const [profileData, setProfileData] = useState({
     fullName: "",
@@ -19,7 +30,8 @@ function Profile() {
     email: "",
     phoneNo: "",
     companyName: "",
-    profilePic: avatarImg, // Default image if not available
+    description: "", // Added description field
+    profilePic: avatarImg,
   });
 
   useEffect(() => {
@@ -30,6 +42,7 @@ function Profile() {
         email: profile.email || "",
         phoneNo: profile.phoneNo || "",
         companyName: profile.companyName || "",
+        description: profile.description || "", // Added description field
         profilePic: profile.profilePic || avatarImg,
       });
     }
@@ -37,7 +50,7 @@ function Profile() {
 
   // Handle Input Change
   const handleChange = (e) => {
-    // Prevent updating the profile object directly
+    setProfileData({ ...profileData, [e.target.name]: e.target.value });
   };
 
   // Toggle Edit Mode
@@ -46,12 +59,9 @@ function Profile() {
   };
 
   const [open, setOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const handleClickOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-
-  if (!profile) {
-    return <div>Loading...</div>;
-  }
 
   return (
     <div className="w-full min-h-screen flex flex-col items-center bg-gray-100 py-10">
@@ -69,15 +79,31 @@ function Profile() {
           </div>
 
           {/* Profile Picture Update Dialog */}
-          <Dialog open={open} onClose={handleClose}>
-            <DialogTitle>Update Profile Pic</DialogTitle>
-            <DialogActions>
-              <Button onClick={handleClose}>Update</Button>
-              <Button onClick={handleClose} autoFocus>
-                Cancel
-              </Button>
-            </DialogActions>
-          </Dialog>
+          <div className="flex flex-col items-center">
+            <Dialog open={open} onClose={handleClose}>
+              <DialogTitle>Update Profile Pic</DialogTitle>
+              <DialogContent className="flex flex-col items-center">
+                <label
+                  htmlFor="file-upload"
+                  className="cursor-pointer px-5 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-300"
+                >
+                  Choose File
+                </label>
+                <input
+                  type="file"
+                  id="file-upload"
+                  className="hidden"
+                  accept="image/*"
+                />
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleClose}>Update</Button>
+                <Button onClick={handleClose} autoFocus>
+                  Cancel
+                </Button>
+              </DialogActions>
+            </Dialog>
+          </div>
 
           {/* Profile Info */}
           <form className="w-full space-y-4">
@@ -91,6 +117,7 @@ function Profile() {
                   type="text"
                   name="fullName"
                   value={profileData.fullName}
+                  onChange={handleChange}
                   readOnly={!isEditing}
                   className={`w-full px-3 py-2 border rounded-md ${
                     isEditing ? "border-blue-500 bg-white" : "bg-gray-100"
@@ -107,6 +134,7 @@ function Profile() {
                   type="text"
                   name="username"
                   value={profileData.username}
+                  onChange={handleChange}
                   readOnly={!isEditing}
                   className={`w-full px-3 py-2 border rounded-md ${
                     isEditing ? "border-blue-500 bg-white" : "bg-gray-100"
@@ -123,10 +151,9 @@ function Profile() {
                   type="email"
                   name="email"
                   value={profileData.email}
-                  readOnly={!isEditing}
-                  className={`w-full px-3 py-2 border rounded-md ${
-                    isEditing ? "border-blue-500 bg-white" : "bg-gray-100"
-                  }`}
+                  onChange={handleChange}
+                  readOnly={true}
+                  className={`w-full px-3 py-2 border rounded-md bg-gray-100`}
                 />
               </div>
 
@@ -139,6 +166,7 @@ function Profile() {
                   type="tel"
                   name="phoneNo"
                   value={profileData.phoneNo}
+                  onChange={handleChange}
                   readOnly={!isEditing}
                   className={`w-full px-3 py-2 border rounded-md ${
                     isEditing ? "border-blue-500 bg-white" : "bg-gray-100"
@@ -155,8 +183,25 @@ function Profile() {
                   type="text"
                   name="companyName"
                   value={profileData.companyName}
+                  onChange={handleChange}
                   readOnly={!isEditing}
                   className={`w-full px-3 py-2 border rounded-md ${
+                    isEditing ? "border-blue-500 bg-white" : "bg-gray-100"
+                  }`}
+                />
+              </div>
+
+              {/* Description */}
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Description
+                </label>
+                <textarea
+                  name="description"
+                  value={profileData.description}
+                  onChange={handleChange}
+                  readOnly={!isEditing}
+                  className={`w-full px-3 py-2 border rounded-md h-24 ${
                     isEditing ? "border-blue-500 bg-white" : "bg-gray-100"
                   }`}
                 />
