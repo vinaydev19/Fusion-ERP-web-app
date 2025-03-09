@@ -428,7 +428,7 @@ const updateUserAccountDetails = asyncHandler(async (req, res) => {
   const { fullName, username, phoneNo, companyName, description } = req.body;
 
   if (
-    [fullName, username, phoneNo, companyName, description].some(
+    [fullName, username, phoneNo, companyName].some(
       (field) => field.trim() === ""
     )
   ) {

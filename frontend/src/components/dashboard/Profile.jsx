@@ -14,11 +14,15 @@ import avatarImg from "../../assets/avatar.jpeg";
 import axios from "axios";
 import { USER_API_END_POINT } from "@/utils/constants";
 import toast from "react-hot-toast";
+import Loading from "../commen/Loading";
 
 function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const { user, profile } = useSelector((state) => state.user);
   const { id } = useParams();
+  const [isLoading, setIsLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [profilePic, setProfilePic] = useState("");
 
   // console.log(`profile`, profile);
 
@@ -53,13 +57,75 @@ function Profile() {
     setProfileData({ ...profileData, [e.target.name]: e.target.value });
   };
 
+  const updateUserAccountDetailsFormHandle = async () => {
+    setIsLoading(true);
+
+    try {
+      const res = await axios.patch(
+        `${USER_API_END_POINT}/update-account-details`,
+        {
+          fullName: profileData.fullName,
+          username: profileData.username,
+          phoneNo: profileData.phoneNo,
+          companyName: profileData.companyName,
+          description: profileData.description,
+        },
+        { withCredentials: true }
+      );
+      console.log(res);
+      toast.success(res.data.message);
+      setIsEditing(false);
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to update profile");
+      console.error("Error updating profile:", error);
+      setIsLoading(false);
+    }
+  };
+
+  const updateUserProfilePicHandle = async (e) => {
+    e.preventDefault();
+
+    if (!profilePic) {
+      toast.error("Please select an image");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const res = await axios.patch(
+        `${USER_API_END_POINT}/update-profilepic`,
+        { profilePic },
+        {
+          withCredentials: true,
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+
+      toast.success(res.data.message);
+      console.log(res);
+
+      // Update UI with new profile pic
+      setProfileData((prevData) => ({
+        ...prevData,
+        profilePic: URL.createObjectURL(profilePic),
+      }));
+      setOpen(false);
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Failed to update profile picture"
+      );
+      console.error("Error updating profile picture:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Toggle Edit Mode
   const toggleEdit = () => {
     setIsEditing(!isEditing);
   };
 
-  const [open, setOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const handleClickOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
@@ -94,10 +160,17 @@ function Profile() {
                   id="file-upload"
                   className="hidden"
                   accept="image/*"
+                  onChange={(e) => setProfilePic(e.target.files[0])}
                 />
               </DialogContent>
               <DialogActions>
-                <Button onClick={handleClose}>Update</Button>
+                {isLoading ? (
+                  <Button onClick={updateUserProfilePicHandle}>
+                    <Loading color="#000" />
+                  </Button>
+                ) : (
+                  <Button onClick={updateUserProfilePicHandle}>Update</Button>
+                )}
                 <Button onClick={handleClose} autoFocus>
                   Cancel
                 </Button>
@@ -211,13 +284,23 @@ function Profile() {
             {/* Action Buttons */}
             <div className="flex justify-between mt-4">
               {isEditing ? (
-                <button
-                  type="button"
-                  onClick={toggleEdit}
-                  className="w-1/2 px-4 py-2 bg-green-500 text-white rounded-md shadow-md hover:bg-green-600 transition"
-                >
-                  Save Changes
-                </button>
+                isLoading ? (
+                  <button
+                    type="button"
+                    disabled
+                    className="w-1/2 px-4 py-2 bg-gray-400 text-white rounded-md shadow-md transition"
+                  >
+                    <Loading color="#000" />
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={updateUserAccountDetailsFormHandle}
+                    className="w-1/2 px-4 py-2 bg-green-500 text-white rounded-md shadow-md hover:bg-green-600 transition"
+                  >
+                    Save Changes
+                  </button>
+                )
               ) : (
                 <button
                   type="button"
@@ -227,6 +310,7 @@ function Profile() {
                   Edit Profile
                 </button>
               )}
+
               {isEditing && (
                 <button
                   type="button"
