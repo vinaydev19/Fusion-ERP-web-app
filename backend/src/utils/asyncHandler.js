@@ -8,7 +8,7 @@ const asyncHandler = (fn) => async (...args) => {
     if (!error.statusCode) {
       error = new ApiError(500, "Internal Server Error");
     }
-    const next = args[2]; // Extract next from args
+    const next = args[2];
     if (typeof next === "function") {
       next(error);
     }

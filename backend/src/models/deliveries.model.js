@@ -1,66 +1,97 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
-const ProductsSchema = new mongoose.Schema({
+const ProductsSchema = new Schema({
   ProductId: {
-    type: mongoose.Schema.Types.ObjectId,
-    Ref: "Product",
+    type: Schema.Types.ObjectId,
+    ref: "Product",
+    required: true,
   },
-  ProductName: String,
-  Quantity: Number,
-  UnitPrice: Number,
-  TotalPrice: Number,
+  ProductName: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  Quantity: {
+    type: Number,
+    required: true,
+    min: 1,
+  },
+  UnitPrice: {
+    type: Number,
+    required: true,
+    min: 0,
+  },
+  TotalPrice: {
+    type: Number,
+    required: true,
+    min: 0,
+  },
 });
 
-const deliverySchema = new mongoose.Schema(
+const deliverySchema = new Schema(
   {
     DeliveryId: {
       type: String,
       required: true,
+      unique: true,
     },
     OrderNumber: {
       type: String,
       required: true,
+      unique: true, 
     },
     CustomerName: {
       type: String,
       required: true,
+      trim: true,
     },
     CustomerContact: {
       type: String,
       required: true,
+      match: [/^\d{10,15}$/, "Invalid phone number"], 
     },
     DeliveryAddress: {
       type: String,
       required: true,
+      trim: true,
     },
     Products: {
       type: [ProductsSchema],
+      required: true,
     },
     DeliveryMethod: {
       type: String,
       required: true,
+      trim: true,
     },
     TrackingNumber: {
       type: String,
       required: true,
+      unique: true,
+      trim: true,
     },
     CourierDetails: {
       type: String,
+      trim: true,
     },
     PaymentStatus: {
-      type: String, // Paid, Unpaid
+      type: String,
       required: true,
+      enum: ["Paid", "Unpaid"],
     },
     PaymentMethod: {
       type: String,
       required: true,
+      enum: ["Cash", "Credit Card", "PayPal", "Bank Transfer"],
     },
     Notes: {
       type: String,
+      trim: true,
     },
     userId: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      required: true,
     },
   },
   { timestamps: true }

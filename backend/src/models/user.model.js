@@ -7,19 +7,26 @@ const userSchema = new mongoose.Schema(
     fullName: {
       type: String,
       required: true,
+      trim: true,
     },
     username: {
       type: String,
       required: true,
+      unique: true,
+      trim: true,
     },
     email: {
       type: String,
       required: true,
       unique: true,
+      trim: true,
+      lowercase: true,
     },
     phoneNo: {
       type: String,
       required: true,
+      unique: true,
+      trim: true,
     },
     profilePic: {
       type: String,
@@ -28,9 +35,11 @@ const userSchema = new mongoose.Schema(
     companyName: {
       type: String,
       required: true,
+      trim: true,
     },
     description: {
       type: String,
+      trim: true,
     },
     password: {
       type: String,

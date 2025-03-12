@@ -23,7 +23,6 @@ import productRouter from "./routes/products.routes.js";
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/product", productRouter);
 
-// Place this after all route definitions
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(err.statusCode || 500).json({

@@ -1,71 +1,64 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
-const customerSchame = new mongoose.Schema({
-  Name: {
-    type: String,
-    required: true,
-  },
-  Address: {
-    type: String,
-    required: true,
-  },
-  Mobile: {
-    type: String,
-    required: true,
-  },
-  Email: {
-    type: String,
-    required: true,
-  },
-});
-
-const saleSchame = new mongoose.Schema(
+const saleSchema = new Schema(
   {
-    SaleId: {
+    saleId: {
       type: String,
       required: true,
+      unique: true,
+      trim: true,
     },
-    SellingPrice: {
-      type: String,
+    saleItem: {
+      type: Schema.Types.ObjectId,
+      ref: "Product",
       required: true,
     },
-    TotalAmount: {
+    sellingPrice: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    quantity: {
+      type: Number,
+      required: true,
+      min: 1,
+    },
+    totalAmount: {
+      type: Number,
+      min: 0,
+      default: function () {
+        return this.sellingPrice * this.quantity;
+      },
+    },
+    paymentStatus: {
       type: String,
       required: true,
+      enum: ["Paid", "Pending", "Failed"],
     },
-    PaymentStatus: {
+    invoice: {
+      type: Schema.Types.ObjectId,
+      ref: "Invoice",
+    },
+    notes: {
       type: String,
-      required: true,
+      trim: true,
     },
-    InvoiceStatus: {
+    salesDate: {
+      type: Date,
+      required: true,
+      default: Date.now,
+    },
+    customerName: {
       type: String,
-      required: true,
+      trim: true,
     },
-    Notes: {
-      type: String,
-      required: true,
-    },
-    SalesDate: {
-      type: String,
-      required: true,
-    },
-    Quantity: {
-      type: String,
-      required: true,
-    },
-    Warehouse: {
-      type: String,
-      required: true,
-    },
-    Customer: {
-      type: [customerSchame],
-    },
-    userId: {
+    user: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      required: true,
     },
   },
   { timestamps: true }
 );
 
-export const Sale = mongoose.model("Sale", saleSchame);
+export const Sale = mongoose.model("Sale", saleSchema);
