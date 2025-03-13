@@ -1,12 +1,10 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { Product } from "../models/products.model.js";
 
 const createProductItem = asyncHandler(async (req, res) => {
-  console.log("create product");
 
   const {
     ProductId,
@@ -24,23 +22,14 @@ const createProductItem = asyncHandler(async (req, res) => {
     SupplierName,
   } = req.body;
 
-  console.log(ProductId);
 
   if (
     [
       ProductId,
       ProductName,
-      Category,
-      Description,
       Quantity,
-      ExpirationDate,
       CostPrice,
       SellingPrice,
-      Notes,
-      DateAdded,
-      Warehouse,
-      Status,
-      SupplierName,
     ].some((field) => field.trim() === "")
   ) {
     throw new ApiError("All field are required");
@@ -189,17 +178,9 @@ const updateProductDetails = asyncHandler(async (req, res) => {
     [
       ProductId,
       ProductName,
-      Category,
-      Description,
       Quantity,
-      ExpirationDate,
       CostPrice,
       SellingPrice,
-      Notes,
-      DateAdded,
-      Warehouse,
-      Status,
-      SupplierName,
     ].every(
       (field) => field === undefined || field === null || field.trim() === ""
     )
@@ -237,7 +218,7 @@ const updateProductDetails = asyncHandler(async (req, res) => {
       new ApiResponse(
         200,
         { updateProduct },
-        "account details are updated successfully"
+        "product data are updated successfully"
       )
     );
 });

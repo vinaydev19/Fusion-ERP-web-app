@@ -29,6 +29,7 @@ const saleSchema = new Schema(
       default: function () {
         return this.sellingPrice * this.quantity;
       },
+      required: true
     },
     paymentStatus: {
       type: String,
@@ -52,7 +53,7 @@ const saleSchema = new Schema(
       type: String,
       trim: true,
     },
-    user: {
+    userId: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,

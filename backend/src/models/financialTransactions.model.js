@@ -12,7 +12,7 @@ const financialSchema = new Schema(
       required: true,
       enum: ["Income", "Expense"],
     },
-    Date: {
+    financialDate: {
       type: Date,
       required: true,
       default: Date.now,

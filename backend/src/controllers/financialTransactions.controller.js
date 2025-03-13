@@ -1,0 +1,167 @@
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { ApiError } from "../utils/ApiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { Financial } from "../models/financialTransactions.model.js";
+
+const createFinancialItem = asyncHandler(async (req, res) => {
+    const {
+        TransactionId,
+        Type,
+        financialDate,
+        Amount,
+        Currency,
+        Description,
+        PaymentMethod,
+        Account,
+        Notes,
+        Status,
+        InvoiceId
+    } = req.body;
+
+    if (
+        [
+            TransactionId,
+            Type,
+            financialDate,
+            Amount,
+            Currency,
+            PaymentMethod,
+            Status
+        ].some((field) => field.trim() === "")
+    ) {
+        throw new ApiError("All field are required");
+    }
+
+    const financial = await Financial.create({
+        TransactionId,
+        Type,
+        financialDate,
+        Amount,
+        Currency,
+        Description,
+        PaymentMethod,
+        Account,
+        Notes,
+        Status,
+        InvoiceId,
+        userId: req.user._id,
+    });
+
+    if (!financial) {
+        throw new ApiError(500, "something want wrong while create financial");
+    }
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, { financial }, "financial add successfully"));
+});
+
+const getAllFinancial = asyncHandler(async (req, res) => {
+    const userId = req.user._id;
+    const AllFinancials = await Financial.find({ userId });
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(200, { AllFinancials }, "fetch all financials successfully")
+        );
+});
+
+const getOneFinancial = asyncHandler(async (req, res) => {
+    const financialMongodbId = req.params.financialMongodbId;
+
+    const financial = await Financial.findOne(financialMongodbId);
+
+    if (!financial) {
+        throw new ApiError(401, "financial not found");
+    }
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, { financial }, "fetch one financial successfully"));
+});
+
+const deleteFinancial = asyncHandler(async (req, res) => {
+    const financialMongodbId = req.params.financialtMongodbId;
+
+    const financial = await Financial.findByIdAndDelete(financialMongodbId);
+
+    console.log(financial);
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, financial, "fetch one financial successfully"));
+});
+
+const updateFinancialDetails = asyncHandler(async (req, res) => {
+    const financialDocsId = req.params.financialMongodbId;
+    const {
+        TransactionId,
+        Type,
+        financialDate,
+        Amount,
+        Currency,
+        Description,
+        PaymentMethod,
+        Account,
+        Notes,
+        Status,
+        InvoiceId
+    } = req.body;
+
+    if (
+        [
+            TransactionId,
+            Type,
+            financialDate,
+            Amount,
+            Currency,
+            PaymentMethod,
+            Status
+        ].every(
+            (field) => field === undefined || field === null || field.trim() === ""
+        )
+    ) {
+        throw new ApiError(403, "At least one field is required to update");
+    }
+
+    const updateFinancial = await Financial.findByIdAndUpdate(
+        financialDocsId,
+        {
+            $set: {
+                TransactionId,
+                Type,
+                financialDate,
+                Amount,
+                Currency,
+                Description,
+                PaymentMethod,
+                Account,
+                Notes,
+                Status,
+                InvoiceId
+            },
+        },
+        {
+            new: true,
+        }
+    );
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                { updateFinancial },
+                "financial data are updated successfully"
+            )
+        );
+});
+
+export {
+    createFinancialItem,
+    getAllFinancial,
+    getOneFinancial,
+    deleteFinancial,
+    updateFinancialDetails
+};
