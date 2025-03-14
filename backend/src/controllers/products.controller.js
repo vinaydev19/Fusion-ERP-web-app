@@ -86,10 +86,10 @@ const getAllProduct = asyncHandler(async (req, res) => {
 const getOneProduct = asyncHandler(async (req, res) => {
   const productMongodbId = req.params.productMongodbId;
 
-  const product = await Product.findOne(productMongodbId);
+  const product = await Product.findById(productMongodbId);
 
   if (!product) {
-    throw new ApiError(401, "product not found");
+    throw new ApiError(404, "product not found");
   }
 
   return res
@@ -102,11 +102,14 @@ const deleteProduct = asyncHandler(async (req, res) => {
 
   const product = await Product.findByIdAndDelete(productMongodbId);
 
-  console.log(product);
+  if (!product) {
+    throw new ApiError(404, "Product not found");
+  }
+
 
   return res
     .status(200)
-    .json(new ApiResponse(200, product, "fetch one product successfully"));
+    .json(new ApiResponse(200, {}, "Product deleted successfully"));
 });
 
 const updateProductImage = asyncHandler(async (req, res) => {

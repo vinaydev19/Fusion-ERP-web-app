@@ -20,17 +20,10 @@ const createSaleItem = asyncHandler(async (req, res) => {
 
 
     if (
-        [
-            saleId,
-            saleItem,
-            sellingPrice,
-            quantity,
-            totalAmount,
-            paymentStatus,
-            salesDate
-        ].some((field) => field.trim() === "")
+        [saleId, paymentStatus].some(field => typeof field === "string" && field.trim() === "") ||
+        [saleItem, sellingPrice, quantity, totalAmount, salesDate].some(field => field === undefined || field === null)
     ) {
-        throw new ApiError("All field are required");
+        throw new ApiError(400, "All required fields must be provided");
     }
 
 
@@ -50,12 +43,12 @@ const createSaleItem = asyncHandler(async (req, res) => {
     });
 
     if (!sale) {
-        throw new ApiError(500, "something want wrong while create sale");
+        throw new ApiError(500, "Something went wrong while creating sale");
     }
 
     return res
         .status(200)
-        .json(new ApiResponse(200, { sale }, "sale add successfully"));
+        .json(new ApiResponse(200, { sale }, "Sale added successfully"));
 });
 
 const getAllSale = asyncHandler(async (req, res) => {
@@ -65,22 +58,22 @@ const getAllSale = asyncHandler(async (req, res) => {
     return res
         .status(200)
         .json(
-            new ApiResponse(200, { AllSales }, "fetch all sales successfully")
+            new ApiResponse(200, { AllSales }, "Fetched all sales successfully")
         );
 });
 
 const getOneSale = asyncHandler(async (req, res) => {
     const saleMongodbId = req.params.saleMongodbId;
 
-    const sale = await Sale.findOne(saleMongodbId);
+    const sale = await Sale.findById(saleMongodbId);
 
     if (!sale) {
-        throw new ApiError(401, "sale not found");
+        throw new ApiError(404, "Sale not found");
     }
 
     return res
         .status(200)
-        .json(new ApiResponse(200, { sale }, "fetch one sale successfully"));
+        .json(new ApiResponse(200, { sale }, "Fetched one sale successfully"));
 });
 
 const deleteSale = asyncHandler(async (req, res) => {
@@ -88,11 +81,14 @@ const deleteSale = asyncHandler(async (req, res) => {
 
     const sale = await Sale.findByIdAndDelete(saleMongodbId);
 
-    console.log(sale);
+    if (!sale) {
+        throw new ApiError(404, "Sale not found");
+    }
+
 
     return res
         .status(200)
-        .json(new ApiResponse(200, sale, "fetch one sale successfully"));
+        .json(new ApiResponse(200, sale, "Sale deleted successfully"));
 });
 
 const updateSaleDetails = asyncHandler(async (req, res) => {
@@ -110,21 +106,18 @@ const updateSaleDetails = asyncHandler(async (req, res) => {
         customerName,
     } = req.body;
 
+
     if (
-        [
-            saleId,
-            saleItem,
-            sellingPrice,
-            quantity,
-            totalAmount,
-            paymentStatus,
-            salesDate
-        ].every(
-            (field) => field === undefined || field === null || field.trim() === ""
+        [saleId, paymentStatus, customerName, notes, invoice].every(
+            field => field === undefined || field === null || (typeof field === "string" && field.trim() === "")
+        ) &&
+        [saleItem, sellingPrice, quantity, totalAmount, salesDate].every(
+            field => field === undefined || field === null
         )
     ) {
         throw new ApiError(403, "At least one field is required to update");
     }
+
 
     const updateSale = await Sale.findByIdAndUpdate(
         saleDocsId,
@@ -153,7 +146,7 @@ const updateSaleDetails = asyncHandler(async (req, res) => {
             new ApiResponse(
                 200,
                 { updateSale },
-                "sale data updated successfully"
+                "Sale data updated successfully"
             )
         );
 });

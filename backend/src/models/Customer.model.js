@@ -37,7 +37,7 @@ const customerSchema = new Schema(
           type: String,
           required: true,
         },
-        Date: {
+        PurchaseHistoryDate: {
           type: Date,
           required: true,
           default: Date.now,

@@ -32,10 +32,11 @@ const createEmployeeItem = asyncHandler(async (req, res) => {
             DateOfJoining,
             Salary,
             EmploymentStatus,
-        ].some((field) => field.trim() === "")
+        ].some((field) => !field || field.trim() === "")
     ) {
-        throw new ApiError("All field are required");
+        throw new ApiError(400, "All required fields must be filled");
     }
+
 
 
     const employee = await Employee.create({
@@ -55,7 +56,7 @@ const createEmployeeItem = asyncHandler(async (req, res) => {
     });
 
     if (!employee) {
-        throw new ApiError(500, "something want wrong while create employee");
+        throw new ApiError(500, "Something went wrong while creating the employee");
     }
 
     return res
@@ -77,7 +78,7 @@ const getAllEmployee = asyncHandler(async (req, res) => {
 const getOneEmployee = asyncHandler(async (req, res) => {
     const employeeMongodbId = req.params.employeeMongodbId;
 
-    const employee = await Employee.findOne(employeeMongodbId);
+    const employee = await Employee.findById(employeeMongodbId);
 
     if (!employee) {
         throw new ApiError(401, "employee not found");
@@ -93,7 +94,10 @@ const deleteEmployee = asyncHandler(async (req, res) => {
 
     const employee = await Employee.findByIdAndDelete(employeeMongodbId);
 
-    console.log(employee);
+    if (!employee) {
+        throw new ApiError(404, "Employee not found");
+    }
+
 
     return res
         .status(200)

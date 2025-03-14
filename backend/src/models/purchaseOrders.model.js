@@ -69,7 +69,7 @@ const purchaseSchema = new Schema(
       trim: true,
     },
     Supplier: {
-      type: supplierSchema,
+      type: [supplierSchema],
       required: true,
     },
     Products: {
