@@ -18,10 +18,22 @@ app.use(express.static("public"));
 // import router
 import userRouter from "./routes/user.routes.js";
 import productRouter from "./routes/products.routes.js";
+import salesRouter from "./routes/sales.routes.js";
+import purchaseOrdersRouter from "./routes/purchaseOrders.routes.js";
+import financialRouter from "./routes/financialTransactions.routes.js";
+import employeesRouter from "./routes/employees.routes.js";
+import deliveriesRouter from "./routes/deliveries.routes.js";
+import customerRouter from "./routes/Customer.routes.js";
 
 // router use
 app.use("/api/v1/users", userRouter);
-app.use("/api/v1/product", productRouter);
+app.use("/api/v1/products", productRouter);
+app.use("/api/v1/sales", salesRouter);
+app.use("/api/v1/purchases", purchaseOrdersRouter);
+app.use("/api/v1/financials", financialRouter);
+app.use("/api/v1/employees", employeesRouter);
+app.use("/api/v1/deliveriess", deliveriesRouter);
+app.use("/api/v1/customers", customerRouter);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
