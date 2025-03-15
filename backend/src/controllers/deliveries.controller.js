@@ -35,13 +35,26 @@ const createDeliveryProductItem = asyncHandler(async (req, res) => {
             PaymentStatus,
             PaymentMethod,
             Notes,
-        ].some((field) => !field || field.trim() === "") ||
+        ].some((field) => field === undefined || field === null || String(field).trim() === "") ||
         !Products || !Array.isArray(Products) ||
         Products.some((product) => !product.ProductId || !product.ProductName || !product.Quantity || !product.UnitPrice || !product.TotalPrice)
     ) {
         throw new ApiError(400, "All required fields must be provided");
     }
 
+    const deliveryIdIsUnique = await Delivery.findOne({ DeliveryId })
+
+    if (deliveryIdIsUnique) {
+        throw new ApiError(401, "Delivery Id must be unique")
+    }
+
+    
+    const productIds = Products.map((p) => p.ProductId);
+    const existingProductId = await Delivery.findOne({ "Products.ProductId": { $in: productIds } });
+
+    if (existingProductId) {
+        throw new ApiError(401, "Supplier ID must be unique");
+    }
 
     const delivery = await Delivery.create({
         DeliveryId,

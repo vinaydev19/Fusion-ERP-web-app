@@ -31,6 +31,18 @@ const createPurchaseItem = asyncHandler(async (req, res) => {
         throw new ApiError(400, "All fields are required");
     }
 
+    const purchaseIdIsUnique = await Purchase.findOne({ PurchaseId })
+
+    if (purchaseIdIsUnique) {
+        throw new ApiError(401, "purchase Id must be unique")
+    }
+
+    const supplierIds = Supplier.map((s) => s.SupplierId);
+    const existingSupplier = await Purchase.findOne({ "Supplier.SupplierId": { $in: supplierIds } });
+
+    if (existingSupplier) {
+        throw new ApiError(401, "Supplier ID must be unique");
+    }
 
     const purchase = await Purchase.create({
         PurchaseId,
@@ -88,7 +100,7 @@ const deletePurchase = asyncHandler(async (req, res) => {
 
     return res
         .status(200)
-        .json(new ApiResponse(200, { purchase }, "fetch one purchase successfully"));
+        .json(new ApiResponse(200, {} ,"delect purchase successfully"));
 });
 
 const updatePurchaseDetails = asyncHandler(async (req, res) => {

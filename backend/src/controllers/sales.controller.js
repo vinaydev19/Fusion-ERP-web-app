@@ -26,6 +26,12 @@ const createSaleItem = asyncHandler(async (req, res) => {
         throw new ApiError(400, "All required fields must be provided");
     }
 
+    const saleIdIsUnique = await Sale.findOne({ saleId })
+
+    if (saleIdIsUnique) {
+        throw new ApiError(401, "sale Id must be unique")
+    }
+
 
 
     const sale = await Sale.create({

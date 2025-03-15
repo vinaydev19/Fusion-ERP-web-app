@@ -32,12 +32,17 @@ const createEmployeeItem = asyncHandler(async (req, res) => {
             DateOfJoining,
             Salary,
             EmploymentStatus,
-        ].some((field) => !field || field.trim() === "")
+        ].some((field) => field === undefined || field === null || String(field).trim() === "")
     ) {
         throw new ApiError(400, "All required fields must be filled");
     }
 
 
+    const employeeIdIsUnique = await Employee.findOne({ EmployeeId })
+
+    if (employeeIdIsUnique) {
+        throw new ApiError(401, "Employee Id must be unique")
+    }
 
     const employee = await Employee.create({
         EmployeeId,

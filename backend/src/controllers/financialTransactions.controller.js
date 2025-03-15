@@ -27,9 +27,16 @@ const createFinancialItem = asyncHandler(async (req, res) => {
             Currency,
             PaymentMethod,
             Status
-        ].some((field) => field.trim() === "")
+        ].some((field) => field === undefined || field === null || String(field).trim() === "")
     ) {
-        throw new ApiError("All field are required");
+        throw new ApiError(401, "All fields are required");
+    }
+
+
+    const transactionIdIsUnique = await Financial.findOne({ TransactionId })
+
+    if (transactionIdIsUnique) {
+        throw new ApiError(401, "Transaction Id must be unique")
     }
 
     const financial = await Financial.create({
@@ -90,7 +97,7 @@ const deleteFinancial = asyncHandler(async (req, res) => {
 
     return res
         .status(200)
-        .json(new ApiResponse(200, financial, "Financial record deleted successfully"));
+        .json(new ApiResponse(200, {}, "Financial record deleted successfully"));
 });
 
 const updateFinancialDetails = asyncHandler(async (req, res) => {

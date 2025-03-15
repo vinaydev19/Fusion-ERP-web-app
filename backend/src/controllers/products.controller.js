@@ -30,19 +30,27 @@ const createProductItem = asyncHandler(async (req, res) => {
       Quantity,
       CostPrice,
       SellingPrice,
+      Status
     ].some((field) => field.trim() === "")
   ) {
-    throw new ApiError("All field are required");
+    throw new ApiError(401, "All field are required");
   }
 
-  const ProductImageLocalPath = req.file?.path;
+  const productIdIsUnique = await Product.findOne({ ProductId })
 
-  const ProductImageCloudinary = await uploadOnCloudinary(
-    ProductImageLocalPath
-  );
+  if (productIdIsUnique) {
+    throw new ApiError(401, "Product Id must be unique")
+  }
 
-  if (!ProductImageCloudinary) {
-    throw new ApiError(500, "something want wrong while upload the image");
+  let ProductImageCloudinary = null; // Default to null if no image is provided
+
+  if (req.file) {
+    const ProductImageLocalPath = req.file.path;
+    ProductImageCloudinary = await uploadOnCloudinary(ProductImageLocalPath);
+
+    if (!ProductImageCloudinary) {
+      throw new ApiError(500, "Something went wrong while uploading the image");
+    }
   }
 
   const product = await Product.create({
@@ -59,7 +67,7 @@ const createProductItem = asyncHandler(async (req, res) => {
     Warehouse,
     Status,
     SupplierName,
-    ProductImage: ProductImageCloudinary.url,
+    ProductImage: ProductImageCloudinary ? ProductImageCloudinary.url : "",
     userId: req.user._id,
   });
 

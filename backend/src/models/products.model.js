@@ -3,7 +3,7 @@ import mongoose, { Schema } from "mongoose";
 const productSchema = new Schema(
   {
     ProductId: {
-      type: Number,
+      type: String,
       required: true,
       unique: true,
     },
@@ -64,6 +64,7 @@ const productSchema = new Schema(
       type: String,
       enum: ["Low Stock", "Out of Stock", "Available"],
       default: "Available",
+      required: true
     },
     SupplierName: {
       type: String,
