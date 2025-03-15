@@ -3,7 +3,8 @@ import axios from "axios";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import Loading from "../commen/Loading";
+import Loading from "../../components/commen/Loading";
+
 
 function ChangePassword() {
   const [oldPassword, setOldPassword] = useState("");
@@ -36,7 +37,6 @@ function ChangePassword() {
       );
       console.log(res);
       setIsLoading(false);
-      navigate("/login")
       toast.success(res.data.message);
     } catch (error) {
       toast.error(error.response.data.message);

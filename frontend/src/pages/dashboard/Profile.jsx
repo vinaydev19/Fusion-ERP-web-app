@@ -14,7 +14,8 @@ import avatarImg from "../../assets/avatar.jpeg";
 import axios from "axios";
 import { USER_API_END_POINT } from "@/utils/constants";
 import toast from "react-hot-toast";
-import Loading from "../commen/Loading";
+import Loading from "../../components/commen/Loading";
+
 
 function Profile() {
   const [isEditing, setIsEditing] = useState(false);
@@ -192,9 +193,8 @@ function Profile() {
                   value={profileData.fullName}
                   onChange={handleChange}
                   readOnly={!isEditing}
-                  className={`w-full px-3 py-2 border rounded-md ${
-                    isEditing ? "border-blue-500 bg-white" : "bg-gray-100"
-                  }`}
+                  className={`w-full px-3 py-2 border rounded-md ${isEditing ? "border-blue-500 bg-white" : "bg-gray-100"
+                    }`}
                 />
               </div>
 
@@ -209,9 +209,8 @@ function Profile() {
                   value={profileData.username}
                   onChange={handleChange}
                   readOnly={!isEditing}
-                  className={`w-full px-3 py-2 border rounded-md ${
-                    isEditing ? "border-blue-500 bg-white" : "bg-gray-100"
-                  }`}
+                  className={`w-full px-3 py-2 border rounded-md ${isEditing ? "border-blue-500 bg-white" : "bg-gray-100"
+                    }`}
                 />
               </div>
 
@@ -241,9 +240,8 @@ function Profile() {
                   value={profileData.phoneNo}
                   onChange={handleChange}
                   readOnly={!isEditing}
-                  className={`w-full px-3 py-2 border rounded-md ${
-                    isEditing ? "border-blue-500 bg-white" : "bg-gray-100"
-                  }`}
+                  className={`w-full px-3 py-2 border rounded-md ${isEditing ? "border-blue-500 bg-white" : "bg-gray-100"
+                    }`}
                 />
               </div>
 
@@ -258,9 +256,8 @@ function Profile() {
                   value={profileData.companyName}
                   onChange={handleChange}
                   readOnly={!isEditing}
-                  className={`w-full px-3 py-2 border rounded-md ${
-                    isEditing ? "border-blue-500 bg-white" : "bg-gray-100"
-                  }`}
+                  className={`w-full px-3 py-2 border rounded-md ${isEditing ? "border-blue-500 bg-white" : "bg-gray-100"
+                    }`}
                 />
               </div>
 
@@ -274,9 +271,8 @@ function Profile() {
                   value={profileData.description}
                   onChange={handleChange}
                   readOnly={!isEditing}
-                  className={`w-full px-3 py-2 border rounded-md h-24 ${
-                    isEditing ? "border-blue-500 bg-white" : "bg-gray-100"
-                  }`}
+                  className={`w-full px-3 py-2 border rounded-md h-24 ${isEditing ? "border-blue-500 bg-white" : "bg-gray-100"
+                    }`}
                 />
               </div>
             </div>

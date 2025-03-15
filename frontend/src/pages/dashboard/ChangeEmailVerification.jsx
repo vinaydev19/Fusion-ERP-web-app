@@ -3,7 +3,7 @@ import axios from "axios";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import Loading from "../commen/Loading";
+import Loading from "../../components/commen/Loading";
 
 function ChangeEmailVerification() {
   const [code, setCode] = useState("");
@@ -43,7 +43,7 @@ function ChangeEmailVerification() {
       <div className="flex flex-col justify-center items-center gap-2">
         <h1 className="font-bold text-3xl">Verify Your Email Change</h1>
         <p className="text-[#372929]">
-        We've sent a verification code to your new email address. Please enter the code below to confirm your email update.
+          We've sent a verification code to your new email address. Please enter the code below to confirm your email update.
         </p>
         <h1 className="">Don't see the code?</h1>
         <p className="text-[#372929]">

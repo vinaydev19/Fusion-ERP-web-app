@@ -15,7 +15,7 @@ function Home() {
   // }, []);
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen">
       {/* Sidebar */}
       <aside className="hidden md:flex flex-col shadow-lg">
         <Sidebar />
