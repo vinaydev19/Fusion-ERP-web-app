@@ -2,17 +2,19 @@ import React, { useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import Sidebar from "../components/commen/Sidebar";
 import Navbar from "../components/commen/Navbar";
+import { useSelector } from "react-redux";
 
 function Home() {
-  const navigate = useNavigate();
+  const { user } = useSelector((store) => store.user)
+  const navigate = useNavigate()
 
   // const user = false;
 
-  // useEffect(() => {
-  //   if (!user) {
-  //     navigate("/login");
-  //   }
-  // }, []);
+  useEffect(() => {
+    if (!user) {
+      navigate("");
+    }
+  }, []);
 
   return (
     <div className="flex h-screen">

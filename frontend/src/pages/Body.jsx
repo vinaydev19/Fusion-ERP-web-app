@@ -21,6 +21,7 @@ import ChangeEmail from "./dashboard/ChangeEmail";
 import Profile from "./dashboard/Profile";
 import ChangeEmailVerification from "./dashboard/ChangeEmailVerification";
 import Sales from "./dashboard/Sales";
+import ProtectedRoute from "@/components/dashboard/ProtectedRoute";
 
 function Body() {
   const router = createBrowserRouter([
@@ -51,9 +52,9 @@ function Body() {
     },
     {
       path: "/dashboard",
-      element: <Home />, // Home page contains the dashboard
+      element: <ProtectedRoute />, // Protect dashboard routes
       children: [
-        { path: "", element: <Dashboard /> }, // Default to Dashboard
+        { path: "", element: <Home /> }, // Home contains Sidebar & Navbar
         { path: "product-inventory", element: <Products /> },
         { path: "sales", element: <Sales /> },
         { path: "financial-transactions", element: <FinancialTransactions /> },
@@ -64,7 +65,10 @@ function Body() {
         { path: "purchase-orders", element: <PurchaseOrders /> },
         { path: "change-password", element: <ChangePassword /> },
         { path: "change-email", element: <ChangeEmail /> },
-        { path: "change-email/change-email-verification", element: <ChangeEmailVerification /> },
+        {
+          path: "change-email/change-email-verification",
+          element: <ChangeEmailVerification />,
+        },
         { path: "profile", element: <Profile /> },
       ],
     },

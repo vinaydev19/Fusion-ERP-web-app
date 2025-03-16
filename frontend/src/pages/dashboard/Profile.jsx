@@ -19,7 +19,7 @@ import Loading from "../../components/commen/Loading";
 
 function Profile() {
   const [isEditing, setIsEditing] = useState(false);
-  const { user, profile } = useSelector((state) => state.user);
+  const { user, profile } = useSelector((store) => store.user);
   const { id } = useParams();
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
