@@ -7,7 +7,7 @@ const verifyJWT = asyncHandler(async (req, res, next) => {
   try {
     const token =
       req.cookies?.accessToken ||
-      req.header("authorizatioin").replace("bearer ", "");
+      req.header("authorizatioin")?.replace("bearer ", "");
 
     const decodedToken = await jwt.verify(
       token,
