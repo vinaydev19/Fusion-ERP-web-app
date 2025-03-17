@@ -12,6 +12,7 @@ import {
   REGISTER,
 } from 'redux-persist'
 import storage from 'redux-persist/lib/storage'
+import productSlice from "./productSlice";
 
 const persistConfig = {
   key: 'FusionERP',
@@ -21,6 +22,7 @@ const persistConfig = {
 
 const rootReducer = combineReducers({
   user: userSlice,
+  product: productSlice
 })
 const persistedReducer = persistReducer(persistConfig, rootReducer)
 

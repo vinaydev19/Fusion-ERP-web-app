@@ -52,24 +52,28 @@ function Body() {
     },
     {
       path: "/dashboard",
-      element: <ProtectedRoute />, // Protect dashboard routes
+      element: <ProtectedRoute />,
       children: [
-        { path: "", element: <Home /> }, // Home contains Sidebar & Navbar
-        { path: "product-inventory", element: <Products /> },
-        { path: "sales", element: <Sales /> },
-        { path: "financial-transactions", element: <FinancialTransactions /> },
-        { path: "invoice-generator", element: <Invoices /> },
-        { path: "employees-management", element: <Employees /> },
-        { path: "deliveries", element: <Deliveries /> },
-        { path: "customer-management", element: <Customer /> },
-        { path: "purchase-orders", element: <PurchaseOrders /> },
-        { path: "change-password", element: <ChangePassword /> },
-        { path: "change-email", element: <ChangeEmail /> },
         {
-          path: "change-email/change-email-verification",
-          element: <ChangeEmailVerification />,
+          path: "", element: <Home />, children: [
+            { path: "product-inventory", element: <Products /> },
+            { path: "sales", element: <Sales /> },
+            { path: "financial-transactions", element: <FinancialTransactions /> },
+            { path: "invoice-generator", element: <Invoices /> },
+            { path: "employees-management", element: <Employees /> },
+            { path: "deliveries", element: <Deliveries /> },
+            { path: "customer-management", element: <Customer /> },
+            { path: "purchase-orders", element: <PurchaseOrders /> },
+            { path: "change-password", element: <ChangePassword /> },
+            { path: "change-email", element: <ChangeEmail /> },
+            {
+              path: "change-email/change-email-verification",
+              element: <ChangeEmailVerification />,
+            },
+            { path: "profile", element: <Profile /> },
+          ]
         },
-        { path: "profile", element: <Profile /> },
+
       ],
     },
   ]);

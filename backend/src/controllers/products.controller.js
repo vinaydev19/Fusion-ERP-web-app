@@ -23,17 +23,9 @@ const createProductItem = asyncHandler(async (req, res) => {
   } = req.body;
 
 
-  if (
-    [
-      ProductId,
-      ProductName,
-      Quantity,
-      CostPrice,
-      SellingPrice,
-      Status
-    ].some((field) => field.trim() === "")
-  ) {
-    throw new ApiError(401, "All field are required");
+  if ([ProductId, ProductName, Status].some((field) => !field?.trim()) ||
+    [Quantity, CostPrice, SellingPrice].some((field) => field == null)) {
+    throw new ApiError(401, "All fields are required");
   }
 
   const productIdIsUnique = await Product.findOne({ ProductId })

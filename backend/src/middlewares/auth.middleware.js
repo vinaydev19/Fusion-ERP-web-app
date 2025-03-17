@@ -27,6 +27,8 @@ const verifyJWT = asyncHandler(async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
+    console.error("❌ JWT Verification Failed:", error.message);
+
     throw new ApiError(401, error.message || "invalid access token");
   }
 });

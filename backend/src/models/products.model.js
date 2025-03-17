@@ -54,7 +54,6 @@ const productSchema = new Schema(
     },
     DateAdded: {
       type: Date,
-      default: Date.now,
     },
     Warehouse: {
       type: String,

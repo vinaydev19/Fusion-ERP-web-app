@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Search, Plus, Edit, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -6,10 +6,16 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table"
 import CardImage from "../../assets/placeholder.png"
+import useGetProducts from '@/hooks/useGetProducts'
+import { useSelector } from 'react-redux'
+import Loading from '@/components/commen/Loading'
+import toast from 'react-hot-toast'
+import axios from 'axios'
+import { PRODUCTS_API_END_POINT } from '@/utils/constants'
 
 
 function Products() {
@@ -34,7 +40,7 @@ function Products() {
     SupplierName: "",
   })
   const [filters, setFilters] = useState({
-    stockStatus: "all",
+    stockStatus: "All",
   })
   const [products, setProducts] = useState([
     {
@@ -54,8 +60,12 @@ function Products() {
       SupplierName: "TechSupplies Inc.",
     },
   ]);
+  const { allProducts } = useSelector((store) => store.product)
+  const [isLoading, setIsLoading] = useState(false);
 
 
+
+  // handle the changes
   const handleInputChange = (e) => {
     const { name, value, type, files } = e.target
     setFormData((prevData) => ({
@@ -75,21 +85,80 @@ function Products() {
     setFilters((prevFilters) => ({ ...prevFilters, [name]: value }))
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
 
-    const newProduct = {
-      ...formData,
-      CostPrice: Number(formData.CostPrice),
-      SellingPrice: Number(formData.SellingPrice),
-      Quantity: Number(formData.Quantity),
-      ProductImage: formData.ProductImage ? URL.createObjectURL(formData.ProductImage) : CardImage,
+  // api calling
+  // console.log("products", allProducts);
+
+  useEffect(() => {
+    if (allProducts?.AllProducts) {
+      setProducts(allProducts.AllProducts);
+    }
+  }, [allProducts]);
+  useGetProducts()
+
+
+  // handle the form 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    const formDataToSend = new FormData();
+
+    // Append all form fields
+    formDataToSend.append("ProductId", formData.ProductId);
+    formDataToSend.append("ProductName", formData.ProductName);
+    formDataToSend.append("Category", formData.Category);
+    formDataToSend.append("Description", formData.Description);
+    formDataToSend.append("Quantity", Number(formData.Quantity));
+    formDataToSend.append("ExpirationDate", formData.ExpirationDate);
+    formDataToSend.append("CostPrice", Number(formData.CostPrice));
+    formDataToSend.append("SellingPrice", Number(formData.SellingPrice));
+    formDataToSend.append("Notes", formData.Notes);
+    formDataToSend.append("DateAdded", formData.DateAdded);
+    formDataToSend.append("Warehouse", formData.Warehouse);
+    formDataToSend.append("Status", formData.Status);
+    formDataToSend.append("SupplierName", formData.SupplierName);
+
+    // Append Product Image if selected
+    if (formData.ProductImage) {
+      formDataToSend.append("ProductImage", formData.ProductImage);
     }
 
-    setProducts((prevProducts) => [...prevProducts, newProduct])
-    setIsAddProductModalOpen(false)
-    resetForm()
-  }
+    for (let [key, value] of formDataToSend.entries()) {
+      console.log(`${key}:`, value);
+    }
+
+    console.log("🔍 Checking Cookies:", document.cookie);
+
+    try {
+      const res = await axios.post(
+        `${PRODUCTS_API_END_POINT}/create-product`,
+        { formDataToSend },
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true,
+        }
+      );
+
+      console.log(res);
+      toast.success(res.data.message);
+      console.log("🔍 Request Headers:", res.config.headers);
+      // Update state only after success
+      setProducts((prevProducts) => [...prevProducts, res.data.product]);
+
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Something went wrong");
+      console.log(`Error in handleSubmit: ${error}`);
+      console.log(error);
+
+    } finally {
+      setIsLoading(false);
+      setIsAddProductModalOpen(false);
+      resetForm();
+    }
+  };
 
   const handleUpdate = (e) => {
     e.preventDefault()
@@ -139,11 +208,11 @@ function Products() {
 
     let matchesStatus = true;
     if (filters.stockStatus !== "all") {
-      if (filters.stockStatus === "Low") {
+      if (filters.stockStatus === "Low Stock") {
         matchesStatus = product.Status === "Low Stock";
       } else if (filters.stockStatus === "Available") {
         matchesStatus = product.Status === "In Stock";
-      } else if (filters.stockStatus === "Out") {
+      } else if (filters.stockStatus === "Out of Stock") {
         matchesStatus = product.Status === "Out of Stock";
       }
     }
@@ -156,15 +225,14 @@ function Products() {
     switch (status) {
       case "Available":
         return "bg-green-500 hover:bg-green-600"
-      case "Low":
+      case "Low Stock":
         return "bg-yellow-500 hover:bg-yellow-600"
-      case "Out":
+      case "Out of Stock":
         return "bg-red-500 hover:bg-red-600"
       default:
         return "bg-gray-500 hover:bg-gray-600"
     }
   }
-
 
   // product card component
   function ProductCard({ product }) {
@@ -212,9 +280,12 @@ function Products() {
 
     return (
       <Dialog open={!!selectedProduct} onOpenChange={() => setSelectedProduct(null)}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent aria-describedby="dialog-description" className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>{selectedProduct.ProductName}</DialogTitle>
+            <DialogDescription id="dialog-description">
+              View product details
+            </DialogDescription>
           </DialogHeader>
           <Table>
             <TableBody>
@@ -319,9 +390,12 @@ function Products() {
 
         {/* add product */}
         <Dialog open={isAddProductModalOpen} onOpenChange={setIsAddProductModalOpen}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent id="dialog-description" aria-describedby={selectedProduct ? "dialog-description" : undefined} className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Add New Product</DialogTitle>
+              <DialogDescription id="dialog-description">
+                Add product details in the form below.
+              </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid gap-4">
@@ -337,18 +411,18 @@ function Products() {
 
                 <div className="grid gap-2">
                   <Label htmlFor="Category">Category</Label>
-                  <Input id="Category" name="Category" value={formData.Category} onChange={handleInputChange} required />
+                  <Input id="Category" name="Category" value={formData.Category} onChange={handleInputChange} />
                 </div>
 
                 <div className="grid gap-2">
                   <Label htmlFor="Description">Description</Label>
-                  <Input id="Description" name="Description" value={formData.Description} onChange={handleInputChange} required />
+                  <Input id="Description" name="Description" value={formData.Description} onChange={handleInputChange} />
                 </div>
 
                 {/* {image} */}
                 <div className="grid gap-2">
                   <Label htmlFor="ProductImage">Product Image</Label>
-                  <Input type="file" id="ProductImage" name="ProductImage" onChange={handleInputChange} accept="image/*" />
+                  <Input type="file" id="ProductImage" name="ProductImage" onChange={handleInputChange} accept="image/*" required />
                 </div>
 
 
@@ -359,7 +433,7 @@ function Products() {
 
                 <div className="grid gap-2">
                   <Label htmlFor="ExpirationDate">Expiration Date</Label>
-                  <Input type="date" id="ExpirationDate" name="ExpirationDate" value={formData.ExpirationDate} onChange={handleInputChange} required />
+                  <Input type="date" id="ExpirationDate" name="ExpirationDate" value={formData.ExpirationDate} onChange={handleInputChange} />
                 </div>
 
                 <div className="grid gap-2">
@@ -374,28 +448,28 @@ function Products() {
 
                 <div className="grid gap-2">
                   <Label htmlFor="Notes">Notes</Label>
-                  <Textarea id="Notes" name="Notes" value={formData.Notes} onChange={handleInputChange} required />
+                  <Textarea id="Notes" name="Notes" value={formData.Notes} onChange={handleInputChange} />
                 </div>
 
                 <div className="grid gap-2">
                   <Label htmlFor="DateAdded">Date Added</Label>
-                  <Input type="date" id="DateAdded" name="DateAdded" value={formData.DateAdded} onChange={handleInputChange} required />
+                  <Input type="date" id="DateAdded" name="DateAdded" value={formData.DateAdded} onChange={handleInputChange} />
                 </div>
 
                 <div className="grid gap-2">
                   <Label htmlFor="Warehouse">Warehouse</Label>
-                  <Input id="Warehouse" name="Warehouse" value={formData.Warehouse} onChange={handleInputChange} required />
+                  <Input id="Warehouse" name="Warehouse" value={formData.Warehouse} onChange={handleInputChange} />
                 </div>
 
                 <div className="grid gap-2">
                   <Label htmlFor="status">Status</Label>
-                  <Select value={formData.Status} onValueChange={(value) => handleSelectChange("Status", value)}>
+                  <Select value={formData.Status} onValueChange={(value) => handleSelectChange("Status", value)} required>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a Status" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Low">Low Stock</SelectItem>
-                      <SelectItem value="Out">Out of Stock</SelectItem>
+                      <SelectItem value="Low Stock">Low Stock</SelectItem>
+                      <SelectItem value="Out of Stock">Out of Stock</SelectItem>
                       <SelectItem value="Available">Available</SelectItem>
                     </SelectContent>
                   </Select>
@@ -403,16 +477,15 @@ function Products() {
 
                 <div className="grid gap-2">
                   <Label htmlFor="SupplierName">Supplier Name</Label>
-                  <Input id="SupplierName" name="SupplierName" value={formData.SupplierName} onChange={handleInputChange} required />
+                  <Input id="SupplierName" name="SupplierName" value={formData.SupplierName} onChange={handleInputChange} />
                 </div>
               </div>
               <DialogFooter>
-                <Button type="submit">Add Product</Button>
+                {isLoading ? (<Button type="submit"><Loading color='#000' /></Button>) : (<Button type="submit">Add Product</Button>)}
               </DialogFooter>
             </form>
           </DialogContent>
         </Dialog>
-
 
         {/* filters */}
         <div className="flex flex-wrap gap-4 mb-8">
@@ -422,13 +495,12 @@ function Products() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="All">All Stock Status</SelectItem>
-              <SelectItem value="Low">Low Stock</SelectItem>
+              <SelectItem value="Low Stock">Low Stock</SelectItem>
               <SelectItem value="Available">Available</SelectItem>
-              <SelectItem value="Out">Out of Stock</SelectItem>
+              <SelectItem value="Out of Stock">Out of Stock</SelectItem>
             </SelectContent>
           </Select>
         </div>
-
 
         {/* display product */}
         <ProductGrid />
@@ -438,8 +510,13 @@ function Products() {
 
         {/* edit */}
         <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader><DialogTitle>Edit Product</DialogTitle></DialogHeader>
+          <DialogContent id="dialog-description" aria-describedby={selectedProduct ? "dialog-description" : undefined} className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Edit Product</DialogTitle>
+              <DialogDescription id="dialog-description">
+                Update product details in the form below.
+              </DialogDescription>
+            </DialogHeader>
             <form onSubmit={handleUpdate} className="space-y-4">
               <div className="grid gap-4">
                 <div className="grid gap-2">
@@ -454,18 +531,18 @@ function Products() {
 
                 <div className="grid gap-2">
                   <Label htmlFor="Category">Category</Label>
-                  <Input id="Category" name="Category" value={formData.Category} onChange={handleInputChange} required />
+                  <Input id="Category" name="Category" value={formData.Category} onChange={handleInputChange} />
                 </div>
 
                 <div className="grid gap-2">
                   <Label htmlFor="Description">Description</Label>
-                  <Input id="Description" name="Description" value={formData.Description} onChange={handleInputChange} required />
+                  <Input id="Description" name="Description" value={formData.Description} onChange={handleInputChange} />
                 </div>
 
                 {/* {image} */}
                 <div className="grid gap-2">
                   <Label htmlFor="ProductImage">Product Image</Label>
-                  <Input type="file" id="ProductImage" name="ProductImage" onChange={handleInputChange} accept="image/*" />
+                  <Input type="file" id="ProductImage" name="ProductImage" onChange={handleInputChange} accept="image/*" required />
                 </div>
 
 
@@ -476,7 +553,7 @@ function Products() {
 
                 <div className="grid gap-2">
                   <Label htmlFor="ExpirationDate">Expiration Date</Label>
-                  <Input type="date" id="ExpirationDate" name="ExpirationDate" value={formData.ExpirationDate} onChange={handleInputChange} required />
+                  <Input type="date" id="ExpirationDate" name="ExpirationDate" value={formData.ExpirationDate} onChange={handleInputChange} />
                 </div>
 
                 <div className="grid gap-2">
@@ -491,28 +568,28 @@ function Products() {
 
                 <div className="grid gap-2">
                   <Label htmlFor="Notes">Notes</Label>
-                  <Textarea id="Notes" name="Notes" value={formData.Notes} onChange={handleInputChange} required />
+                  <Textarea id="Notes" name="Notes" value={formData.Notes} onChange={handleInputChange} />
                 </div>
 
                 <div className="grid gap-2">
                   <Label htmlFor="DateAdded">Date Added</Label>
-                  <Input type="date" id="DateAdded" name="DateAdded" value={formData.DateAdded} onChange={handleInputChange} required />
+                  <Input type="date" id="DateAdded" name="DateAdded" value={formData.DateAdded} onChange={handleInputChange} />
                 </div>
 
                 <div className="grid gap-2">
                   <Label htmlFor="Warehouse">Warehouse</Label>
-                  <Input id="Warehouse" name="Warehouse" value={formData.Warehouse} onChange={handleInputChange} required />
+                  <Input id="Warehouse" name="Warehouse" value={formData.Warehouse} onChange={handleInputChange} />
                 </div>
 
                 <div className="grid gap-2">
                   <Label htmlFor="status">Status</Label>
-                  <Select value={formData.Status} onValueChange={(value) => handleSelectChange("Status", value)}>
+                  <Select value={formData.Status} onValueChange={(value) => handleSelectChange("Status", value)} required>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a Status" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Low">Low Stock</SelectItem>
-                      <SelectItem value="Out">Out of Stock</SelectItem>
+                      <SelectItem value="Low Stock">Low Stock</SelectItem>
+                      <SelectItem value="Out of Stock">Out of Stock</SelectItem>
                       <SelectItem value="Available">Available</SelectItem>
                     </SelectContent>
                   </Select>
@@ -520,7 +597,7 @@ function Products() {
 
                 <div className="grid gap-2">
                   <Label htmlFor="SupplierName">Supplier Name</Label>
-                  <Input id="SupplierName" name="SupplierName" value={formData.SupplierName} onChange={handleInputChange} required />
+                  <Input id="SupplierName" name="SupplierName" value={formData.SupplierName} onChange={handleInputChange} />
                 </div>
               </div>
               <DialogFooter>
@@ -529,7 +606,6 @@ function Products() {
             </form>
           </DialogContent>
         </Dialog>
-
       </div>
     </>
 
