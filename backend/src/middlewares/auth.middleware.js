@@ -4,11 +4,17 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../models/user.model.js";
 
 const verifyJWT = asyncHandler(async (req, res, next) => {
-  try {
-    const token =
-      req.cookies?.accessToken ||
-      req.header("authorizatioin")?.replace("bearer ", "");
+  console.log("🔍 Incoming Cookies:", req.cookies); // Debugging
 
+  const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "");
+
+  console.log("🔍 Extracted Token:", token); // Check if token is received
+
+  if (!token) {
+    return res.status(401).json({ message: "No access token provided" });
+  }
+
+  try {
     const decodedToken = await jwt.verify(
       token,
       process.env.ACCESS_TOKEN_SECRET

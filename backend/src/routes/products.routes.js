@@ -15,7 +15,7 @@ const router = Router();
 
 router
   .route("/create-product")
-  .post(verifyJWT, upload.single("productImage"), createProductItem);
+  .post(verifyJWT, upload.single("ProductImage"), createProductItem);
 router.route("/get-all-product").get(verifyJWT, getAllProduct);
 router
   .route("/get-one-product/:productMongodbId")
@@ -28,6 +28,6 @@ router
   .delete(verifyJWT, deleteProduct);
 router
   .route("/update-product-image/:productMongodbId")
-  .patch(verifyJWT, upload.single("productImage"), updateProductImage);
+  .patch(verifyJWT, upload.single("ProductImage"), updateProductImage);
 
 export default router;

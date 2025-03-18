@@ -28,7 +28,7 @@ function Products() {
     ProductName: "",
     Category: "",
     Description: "",
-    ProductImage: null,
+    ProductImage: "",
     Quantity: "",
     ExpirationDate: "",
     CostPrice: "",
@@ -85,6 +85,8 @@ function Products() {
     setFilters((prevFilters) => ({ ...prevFilters, [name]: value }))
   }
 
+  // console.log("🔍 Token in frontend:", document.cookie);
+
 
   // api calling
   // console.log("products", allProducts);
@@ -102,38 +104,30 @@ function Products() {
     e.preventDefault();
     setIsLoading(true);
 
-    const formDataToSend = new FormData();
 
-    // Append all form fields
-    formDataToSend.append("ProductId", formData.ProductId);
-    formDataToSend.append("ProductName", formData.ProductName);
-    formDataToSend.append("Category", formData.Category);
-    formDataToSend.append("Description", formData.Description);
-    formDataToSend.append("Quantity", Number(formData.Quantity));
-    formDataToSend.append("ExpirationDate", formData.ExpirationDate);
-    formDataToSend.append("CostPrice", Number(formData.CostPrice));
-    formDataToSend.append("SellingPrice", Number(formData.SellingPrice));
-    formDataToSend.append("Notes", formData.Notes);
-    formDataToSend.append("DateAdded", formData.DateAdded);
-    formDataToSend.append("Warehouse", formData.Warehouse);
-    formDataToSend.append("Status", formData.Status);
-    formDataToSend.append("SupplierName", formData.SupplierName);
 
-    // Append Product Image if selected
-    if (formData.ProductImage) {
-      formDataToSend.append("ProductImage", formData.ProductImage);
-    }
 
-    for (let [key, value] of formDataToSend.entries()) {
-      console.log(`${key}:`, value);
-    }
-
-    console.log("🔍 Checking Cookies:", document.cookie);
 
     try {
       const res = await axios.post(
         `${PRODUCTS_API_END_POINT}/create-product`,
-        { formDataToSend },
+        {
+          ProductId: formData.ProductId,
+          ProductName: formData.ProductName,
+          Category: formData.Category,
+          Description: formData.Description,
+          Quantity: formData.Quantity,
+          ExpirationDate: formData.ExpirationDate,
+          CostPrice: formData.CostPrice,
+          SellingPrice: formData.SellingPrice,
+          Notes: formData.Notes,
+          DateAdded: formData.DateAdded,
+          Warehouse: formData.Warehouse,
+          Status: formData.Status,
+          SupplierName: formData.SupplierName,
+          ProductImage: formData.ProductImage,
+
+        },
         {
           headers: {
             "Content-Type": "multipart/form-data",
@@ -422,7 +416,7 @@ function Products() {
                 {/* {image} */}
                 <div className="grid gap-2">
                   <Label htmlFor="ProductImage">Product Image</Label>
-                  <Input type="file" id="ProductImage" name="ProductImage" onChange={handleInputChange} accept="image/*" required />
+                  <Input type="file" id="ProductImage" name="ProductImage" onChange={handleInputChange} accept="image/*" />
                 </div>
 
 

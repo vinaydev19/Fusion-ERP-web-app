@@ -5,6 +5,12 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { Product } from "../models/products.model.js";
 
 const createProductItem = asyncHandler(async (req, res) => {
+  console.log("🔍 Received `req.body`:", req.body);
+  console.log("🔍 Received `req.file`:", req.file);
+
+  if (!req.body || Object.keys(req.body).length === 0) {
+    return res.status(400).json({ message: "Form data is empty or not parsed correctly" });
+  }
 
   const {
     ProductId,
@@ -22,28 +28,36 @@ const createProductItem = asyncHandler(async (req, res) => {
     SupplierName,
   } = req.body;
 
-
-  if ([ProductId, ProductName, Status].some((field) => !field?.trim()) ||
-    [Quantity, CostPrice, SellingPrice].some((field) => field == null)) {
+  if (
+    [ProductId, ProductName, Quantity, CostPrice, SellingPrice, Status].some((field) => !field?.trim())
+  ) {
     throw new ApiError(401, "All fields are required");
   }
 
-  const productIdIsUnique = await Product.findOne({ ProductId })
-
-  if (productIdIsUnique) {
-    throw new ApiError(401, "Product Id must be unique")
-  }
-
-  let ProductImageCloudinary = null; // Default to null if no image is provided
-
+  let ProductImageCloudinary = null;
   if (req.file) {
     const ProductImageLocalPath = req.file.path;
     ProductImageCloudinary = await uploadOnCloudinary(ProductImageLocalPath);
-
     if (!ProductImageCloudinary) {
-      throw new ApiError(500, "Something went wrong while uploading the image");
+      throw new ApiError(500, "Error uploading image");
     }
   }
+
+  console.table([ProductId,
+    ProductName,
+    Category,
+    Description,
+    Quantity,
+    ExpirationDate,
+    CostPrice,
+    SellingPrice,
+    Notes,
+    DateAdded,
+    Warehouse,
+    Status,
+    SupplierName,
+    productImage]);
+
 
   const product = await Product.create({
     ProductId,
@@ -63,14 +77,9 @@ const createProductItem = asyncHandler(async (req, res) => {
     userId: req.user._id,
   });
 
-  if (!product) {
-    throw new ApiError(500, "something want wrong while create product");
-  }
-
-  return res
-    .status(200)
-    .json(new ApiResponse(200, { product }, "product add successfully"));
+  return res.status(200).json(new ApiResponse(200, { product }, "Product added successfully"));
 });
+
 
 const getAllProduct = asyncHandler(async (req, res) => {
   const userId = req.user._id;
