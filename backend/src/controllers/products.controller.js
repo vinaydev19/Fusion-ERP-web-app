@@ -4,14 +4,25 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { Product } from "../models/products.model.js";
 
+
+
+// method
+const extractYearAndMonth = (dateString) => {
+  if (!dateString) return { year: null, month: null };
+
+  const date = new Date(dateString);
+  return {
+    year: date.getFullYear().toString(),
+    month: String(date.getMonth() + 1).padStart(2, "0"), // Ensure 2-digit month format
+  };
+};
+
+
+
+
 const createProductItem = asyncHandler(async (req, res) => {
-  console.log("🔍 Received `req.body`:", req.body);
-  console.log("🔍 Received `req.file`:", req.file);
-
-  if (!req.body || Object.keys(req.body).length === 0) {
-    return res.status(400).json({ message: "Form data is empty or not parsed correctly" });
-  }
-
+  // console.log("🔍 Received `req.body`:", req.body);
+  // console.log("🔍 Received `req.file`:", req.file);
   const {
     ProductId,
     ProductName,
@@ -34,6 +45,12 @@ const createProductItem = asyncHandler(async (req, res) => {
     throw new ApiError(401, "All fields are required");
   }
 
+  const productIdIsUnique = await Product.findOne({ ProductId })
+
+  if (productIdIsUnique) {
+    throw new ApiError(401, "Product Id must be unique")
+  }
+
   let ProductImageCloudinary = null;
   if (req.file) {
     const ProductImageLocalPath = req.file.path;
@@ -42,6 +59,9 @@ const createProductItem = asyncHandler(async (req, res) => {
       throw new ApiError(500, "Error uploading image");
     }
   }
+
+  const { year: ExpirationYear, month: ExpirationMonth } = extractYearAndMonth(ExpirationDate);
+  const { year: DateAddedYear, month: DateAddedMonth } = extractYearAndMonth(DateAdded);
 
   console.table([ProductId,
     ProductName,
@@ -55,8 +75,9 @@ const createProductItem = asyncHandler(async (req, res) => {
     DateAdded,
     Warehouse,
     Status,
-    SupplierName,
-    productImage]);
+    SupplierName]);
+
+
 
 
   const product = await Product.create({
@@ -66,10 +87,14 @@ const createProductItem = asyncHandler(async (req, res) => {
     Description,
     Quantity,
     ExpirationDate,
+    ExpirationYear,
+    ExpirationMonth,
     CostPrice,
     SellingPrice,
     Notes,
     DateAdded,
+    DateAddedYear,
+    DateAddedMonth,
     Warehouse,
     Status,
     SupplierName,
@@ -199,6 +224,10 @@ const updateProductDetails = asyncHandler(async (req, res) => {
   ) {
     throw new ApiError(403, "At least one field is required to update");
   }
+
+  // ✅ Extract Year & Month for ExpirationDate and DateAdded
+  const { year: ExpirationYear, month: ExpirationMonth } = extractYearAndMonth(ExpirationDate);
+  const { year: DateAddedYear, month: DateAddedMonth } = extractYearAndMonth(DateAdded);
 
   const updateProduct = await Product.findByIdAndUpdate(
     productDocsId,

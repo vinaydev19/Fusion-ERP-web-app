@@ -18,6 +18,7 @@ const persistConfig = {
   key: 'FusionERP',
   version: 1,
   storage,
+  blacklist: ["products"]
 }
 
 const rootReducer = combineReducers({

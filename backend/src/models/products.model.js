@@ -38,6 +38,12 @@ const productSchema = new Schema(
         message: "Expiration date must be in the future",
       },
     },
+    ExpirationYear: {
+      type: String
+    },
+    ExpirationMonth: {
+      type: String
+    },
     CostPrice: {
       type: Number,
       required: true,
@@ -54,6 +60,12 @@ const productSchema = new Schema(
     },
     DateAdded: {
       type: Date,
+    },
+    DateAddedYear: {
+      type: String
+    },
+    DateAddedMonth: {
+      type: String
     },
     Warehouse: {
       type: String,
@@ -77,5 +89,21 @@ const productSchema = new Schema(
   },
   { timestamps: true }
 );
+
+productSchema.pre("save", function (next) {
+  if (this.ExpirationDate) {
+    const expDate = new Date(this.ExpirationDate);
+    this.ExpirationYear = expDate.getFullYear().toString();
+    this.ExpirationMonth = String(expDate.getMonth() + 1).padStart(2, "0");
+  }
+
+  if (this.DateAdded) {
+    const addedDate = new Date(this.DateAdded);
+    this.DateAddedYear = addedDate.getFullYear().toString();
+    this.DateAddedMonth = String(addedDate.getMonth() + 1).padStart(2, "0");
+  }
+
+  next();
+});
 
 export const Product = mongoose.model("Product", productSchema);

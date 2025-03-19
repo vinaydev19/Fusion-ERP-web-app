@@ -29,5 +29,4 @@ router
 router
   .route("/update-product-image/:productMongodbId")
   .patch(verifyJWT, upload.single("ProductImage"), updateProductImage);
-
 export default router;

@@ -11,14 +11,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table"
 import CardImage from "../../assets/placeholder.png"
 import useGetProducts from '@/hooks/useGetProducts'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import Loading from '@/components/commen/Loading'
 import toast from 'react-hot-toast'
 import axios from 'axios'
 import { PRODUCTS_API_END_POINT } from '@/utils/constants'
+import { getRefresh } from '@/redux/productSlice'
+
 
 
 function Products() {
+
+  // variable or state in react
   const [searchTerm, setSearchTerm] = useState("")
   const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState(null)
@@ -42,30 +46,13 @@ function Products() {
   const [filters, setFilters] = useState({
     stockStatus: "All",
   })
-  const [products, setProducts] = useState([
-    {
-      ProductId: "1",
-      ProductName: "Wireless Headphones",
-      Category: "Electronics",
-      Description: "High-quality sound wireless headphones.",
-      ProductImage: CardImage,
-      Quantity: "45",
-      ExpirationDate: "2025-12-31",
-      CostPrice: "100",
-      SellingPrice: "149.99",
-      Notes: "Best selling item in Q1",
-      DateAdded: "2023-01-15",
-      Warehouse: "Aisle A, Shelf 3",
-      Status: "Available",
-      SupplierName: "TechSupplies Inc.",
-    },
-  ]);
+  const [products, setProducts] = useState([]);
   const { allProducts } = useSelector((store) => store.product)
   const [isLoading, setIsLoading] = useState(false);
+  const dispatch = useDispatch()
 
 
-
-  // handle the changes
+  // handle the changes or model 
   const handleInputChange = (e) => {
     const { name, value, type, files } = e.target
     setFormData((prevData) => ({
@@ -85,95 +72,16 @@ function Products() {
     setFilters((prevFilters) => ({ ...prevFilters, [name]: value }))
   }
 
-  // console.log("🔍 Token in frontend:", document.cookie);
-
-
-  // api calling
-  // console.log("products", allProducts);
-
-  useEffect(() => {
-    if (allProducts?.AllProducts) {
-      setProducts(allProducts.AllProducts);
-    }
-  }, [allProducts]);
-  useGetProducts()
-
-
-  // handle the form 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-
-
-
-
-    try {
-      const res = await axios.post(
-        `${PRODUCTS_API_END_POINT}/create-product`,
-        {
-          ProductId: formData.ProductId,
-          ProductName: formData.ProductName,
-          Category: formData.Category,
-          Description: formData.Description,
-          Quantity: formData.Quantity,
-          ExpirationDate: formData.ExpirationDate,
-          CostPrice: formData.CostPrice,
-          SellingPrice: formData.SellingPrice,
-          Notes: formData.Notes,
-          DateAdded: formData.DateAdded,
-          Warehouse: formData.Warehouse,
-          Status: formData.Status,
-          SupplierName: formData.SupplierName,
-          ProductImage: formData.ProductImage,
-
-        },
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-          withCredentials: true,
-        }
-      );
-
-      console.log(res);
-      toast.success(res.data.message);
-      console.log("🔍 Request Headers:", res.config.headers);
-      // Update state only after success
-      setProducts((prevProducts) => [...prevProducts, res.data.product]);
-
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Something went wrong");
-      console.log(`Error in handleSubmit: ${error}`);
-      console.log(error);
-
-    } finally {
-      setIsLoading(false);
-      setIsAddProductModalOpen(false);
-      resetForm();
-    }
-  };
-
-  const handleUpdate = (e) => {
-    e.preventDefault()
-
-    setProducts((prevProducts) =>
-      prevProducts.map((product) =>
-        product.ProductId === formData.ProductId ? { ...formData } : product
-      )
-    )
-
-    setIsEditModalOpen(false)
-    resetForm()
-  }
-
-  const handleDelete = (id) => {
-    setProducts(products.filter((product) => product.ProductId !== id))
-    setSelectedProduct(null)
-  }
-
   const openEditModal = (product) => {
-    setFormData(product)
+    const formatDate = (dateString) => dateString ? new Date(dateString).toISOString().split("T")[0] : "";
+
+    setFormData({
+      ...product,
+      ExpirationDate: formatDate(product.ExpirationDate),
+      DateAdded: formatDate(product.DateAdded),
+    });
+
+
     setIsEditModalOpen(true)
   }
 
@@ -196,16 +104,142 @@ function Products() {
     })
   }
 
+
+
+  // api calling
+  useEffect(() => {
+    if (allProducts?.AllProducts) {
+      setProducts(allProducts.AllProducts);
+    }
+  }, [allProducts]);
+  useGetProducts()
+
+
+  // handle the form 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+
+
+
+
+    try {
+
+
+      const res = await axios.post(
+        `${PRODUCTS_API_END_POINT}/create-product`,
+        {
+          ProductId: formData.ProductId,
+          ProductName: formData.ProductName,
+          Category: formData.Category,
+          Description: formData.Description,
+          Quantity: formData.Quantity,
+          ExpirationDate: formData.ExpirationDate ? new Date(formData.ExpirationDate).toISOString() : null,
+          CostPrice: formData.CostPrice,
+          SellingPrice: formData.SellingPrice,
+          Notes: formData.Notes,
+          DateAdded: formData.DateAdded ? new Date(formData.DateAdded).toISOString() : null,
+          Warehouse: formData.Warehouse,
+          Status: formData.Status,
+          SupplierName: formData.SupplierName,
+          ProductImage: formData.ProductImage,
+
+        },
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true,
+        }
+      );
+
+      console.log(res);
+      toast.success(res.data.message);
+      console.log("🔍 Request Headers:", res.config.headers);
+      // Update state only after success
+      setProducts((prevProducts) => [...prevProducts, res.data.product]);
+      setIsAddProductModalOpen(false);
+      resetForm();
+      dispatch(getRefresh())
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Something went wrong");
+      console.log(`Error in handleSubmit: ${error}`);
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const res = await axios.patch(
+        `${PRODUCTS_API_END_POINT}/update-product/${formData._id}`,
+        formData, // Send updated product details
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        }
+      );
+      console.log("id", formData._id);
+
+      console.log(res);
+      toast.success(res.data.message);
+      dispatch(getRefresh()); // Refresh product list from API
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Something went wrong");
+      console.error(`Error in handleUpdate: ${error}`);
+    } finally {
+      setIsLoading(false);
+      setIsEditModalOpen(false); // Close modal after update
+      resetForm();
+    }
+  }
+
+  const handleDelete = async (id, e) => {
+    e.preventDefault();
+
+    setIsLoading(true);
+
+    try {
+      const res = await axios.delete(
+        `${PRODUCTS_API_END_POINT}/delete-product/${id}`,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true,
+        }
+      );
+      console.log(res);
+      toast.success(res.data.message);
+      dispatch(getRefresh())
+      // setProducts(products.filter((product) => product.ProductId !== id))
+
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Something went wrong");
+      console.log(`Error in handleSubmit: ${error}`);
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+    setSelectedProduct(null)
+  }
+
+
   // Filter products based on search term and filters
   const filteredProducts = products.filter((product) => {
-    const matchesSearch = product.ProductName?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
+    const matchesSearch = product?.ProductName?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
 
     let matchesStatus = true;
     if (filters.stockStatus !== "all") {
       if (filters.stockStatus === "Low Stock") {
         matchesStatus = product.Status === "Low Stock";
       } else if (filters.stockStatus === "Available") {
-        matchesStatus = product.Status === "In Stock";
+        matchesStatus = product.Status === "Available";
       } else if (filters.stockStatus === "Out of Stock") {
         matchesStatus = product.Status === "Out of Stock";
       }
@@ -215,6 +249,7 @@ function Products() {
   });
 
 
+  // status color
   const getStatusColor = (status) => {
     switch (status) {
       case "Available":
@@ -230,6 +265,7 @@ function Products() {
 
   // product card component
   function ProductCard({ product }) {
+
     return (
       <Card className="overflow-hidden">
         <div className="relative h-48 w-full">
@@ -246,7 +282,7 @@ function Products() {
         <CardFooter className="p-4 pt-0 flex justify-between">
           <Button onClick={() => setSelectedProduct(product)}>View</Button>
           <Button variant="outline" onClick={() => openEditModal(product)}><Edit className="w-4 h-4" /></Button>
-          <Button variant="destructive" onClick={() => handleDelete(product.ProductId)}><Trash2 className="w-4 h-4" /></Button>
+          <Button variant="destructive" onClick={(e) => handleDelete(product._id, e)}><Trash2 className="w-4 h-4" /></Button>
         </CardFooter>
       </Card>
     )
@@ -257,7 +293,7 @@ function Products() {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {filteredProducts.map((product) => (
-          <ProductCard key={product.ProductId} product={product} />
+          <ProductCard key={product._id} product={product} />
         ))}
         {filteredProducts.length === 0 && (
           <div className="col-span-full text-center py-10">
@@ -272,6 +308,9 @@ function Products() {
   function ProductDetailsModal() {
     if (!selectedProduct) return null
 
+    const formatDate = (dateString) =>
+      dateString ? new Date(dateString).toISOString().split("T")[0] : "N/A";
+
     return (
       <Dialog open={!!selectedProduct} onOpenChange={() => setSelectedProduct(null)}>
         <DialogContent aria-describedby="dialog-description" className="max-w-2xl">
@@ -283,6 +322,11 @@ function Products() {
           </DialogHeader>
           <Table>
             <TableBody>
+              <TableRow>
+                <TableCell className="flex justify-center items-center">
+                  <img className='w-32 h-32 object-cover rounded-lg' alt={selectedProduct.ProductName} src={selectedProduct.ProductImage} />
+                </TableCell>
+              </TableRow>
               <TableRow>
                 <TableCell className="font-medium">Product Id</TableCell>
                 <TableCell>{selectedProduct.ProductId}</TableCell>
@@ -309,7 +353,7 @@ function Products() {
               </TableRow>
               <TableRow>
                 <TableCell className="font-medium">Expiration Date</TableCell>
-                <TableCell>{selectedProduct.ExpirationDate || "N/A"}</TableCell>
+                <TableCell>{formatDate(selectedProduct.ExpirationDate)}</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell className="font-medium">Stock Quantity</TableCell>
@@ -325,30 +369,10 @@ function Products() {
               </TableRow>
               <TableRow>
                 <TableCell className="font-medium">Date Added</TableCell>
-                <TableCell>{selectedProduct.DateAdded || "N/A"}</TableCell>
+                <TableCell>{formatDate(selectedProduct.DateAdded)}</TableCell>
               </TableRow>
             </TableBody>
           </Table>
-
-          <DialogFooter className="flex justify-end space-x-2">
-            <Button
-              variant="outline"
-              onClick={() => {
-                alert(`Update functionality for ${selectedProduct.name}`)
-              }}
-            >
-              Update
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={() => {
-                alert(`Delete functionality for ${selectedProduct.name}`)
-                setSelectedProduct(null)
-              }}
-            >
-              Delete
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     )
@@ -456,7 +480,7 @@ function Products() {
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="status">Status</Label>
+                  <Label htmlFor="Status">Status</Label>
                   <Select value={formData.Status} onValueChange={(value) => handleSelectChange("Status", value)} required>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a Status" />
@@ -507,11 +531,11 @@ function Products() {
           <DialogContent id="dialog-description" aria-describedby={selectedProduct ? "dialog-description" : undefined} className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Edit Product</DialogTitle>
-              <DialogDescription id="dialog-description">
-                Update product details in the form below.
+              <DialogDescription>
+                Update product details and save changes.
               </DialogDescription>
             </DialogHeader>
-            <form onSubmit={handleUpdate} className="space-y-4">
+            <form className="space-y-4">
               <div className="grid gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="ProductId">Product Id</Label>
@@ -533,11 +557,11 @@ function Products() {
                   <Input id="Description" name="Description" value={formData.Description} onChange={handleInputChange} />
                 </div>
 
-                {/* {image} */}
+                {/* {image}
                 <div className="grid gap-2">
                   <Label htmlFor="ProductImage">Product Image</Label>
                   <Input type="file" id="ProductImage" name="ProductImage" onChange={handleInputChange} accept="image/*" required />
-                </div>
+                </div> */}
 
 
                 <div className="grid gap-2">
@@ -595,7 +619,8 @@ function Products() {
                 </div>
               </div>
               <DialogFooter>
-                <Button type="submit">Update Product</Button>
+                <Button onClick={(e) => { e.preventDefault(); setIsEditModalOpen(false) }}>Cancel</Button>
+                <Button onClick={handleUpdate}>Save</Button>
               </DialogFooter>
             </form>
           </DialogContent>
