@@ -2,34 +2,34 @@ import mongoose, { Schema } from "mongoose";
 
 const productSchema = new Schema(
   {
-    ProductId: {
+    productId: {
       type: String,
       required: true,
       unique: true,
     },
-    ProductName: {
+    productName: {
       type: String,
       required: true,
       trim: true,
     },
-    Category: {
+    category: {
       type: String,
       trim: true,
     },
-    Description: {
+    description: {
       type: String,
       trim: true,
     },
-    ProductImage: {
+    productImage: {
       type: String,
       trim: true,
     },
-    Quantity: {
+    quantity: {
       type: Number,
       required: true,
       min: 0,
     },
-    ExpirationDate: {
+    expirationDate: {
       type: Date,
       validate: {
         validator: function (value) {
@@ -38,46 +38,34 @@ const productSchema = new Schema(
         message: "Expiration date must be in the future",
       },
     },
-    ExpirationYear: {
-      type: String
-    },
-    ExpirationMonth: {
-      type: String
-    },
-    CostPrice: {
+    costPrice: {
       type: Number,
       required: true,
       min: 0,
     },
-    SellingPrice: {
+    sellingPrice: {
       type: Number,
       required: true,
       min: 0,
     },
-    Notes: {
+    notes: {
       type: String,
       trim: true,
     },
-    DateAdded: {
+    dateAdded: {
       type: Date,
     },
-    DateAddedYear: {
-      type: String
-    },
-    DateAddedMonth: {
-      type: String
-    },
-    Warehouse: {
+    warehouse: {
       type: String,
       trim: true,
     },
-    Status: {
+    status: {
       type: String,
       enum: ["Low Stock", "Out of Stock", "Available"],
       default: "Available",
       required: true
     },
-    SupplierName: {
+    supplierName: {
       type: String,
       trim: true,
     },
@@ -90,20 +78,5 @@ const productSchema = new Schema(
   { timestamps: true }
 );
 
-productSchema.pre("save", function (next) {
-  if (this.ExpirationDate) {
-    const expDate = new Date(this.ExpirationDate);
-    this.ExpirationYear = expDate.getFullYear().toString();
-    this.ExpirationMonth = String(expDate.getMonth() + 1).padStart(2, "0");
-  }
-
-  if (this.DateAdded) {
-    const addedDate = new Date(this.DateAdded);
-    this.DateAddedYear = addedDate.getFullYear().toString();
-    this.DateAddedMonth = String(addedDate.getMonth() + 1).padStart(2, "0");
-  }
-
-  next();
-});
 
 export const Product = mongoose.model("Product", productSchema);

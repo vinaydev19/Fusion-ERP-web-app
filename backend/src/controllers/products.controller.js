@@ -6,99 +6,72 @@ import { Product } from "../models/products.model.js";
 
 
 
-// method
-const extractYearAndMonth = (dateString) => {
-  if (!dateString) return { year: null, month: null };
-
-  const date = new Date(dateString);
-  return {
-    year: date.getFullYear().toString(),
-    month: String(date.getMonth() + 1).padStart(2, "0"), // Ensure 2-digit month format
-  };
-};
-
-
-
 
 const createProductItem = asyncHandler(async (req, res) => {
-  // console.log("🔍 Received `req.body`:", req.body);
-  // console.log("🔍 Received `req.file`:", req.file);
+
+  console.log("Incoming request body:", req.body);
+
+
   const {
-    ProductId,
-    ProductName,
-    Category,
-    Description,
-    Quantity,
-    ExpirationDate,
-    CostPrice,
-    SellingPrice,
-    Notes,
-    DateAdded,
-    Warehouse,
-    Status,
-    SupplierName,
+    productId,
+    productName,
+    category,
+    description,
+    quantity,
+    expirationDate,
+    costPrice,
+    sellingPrice,
+    notes,
+    dateAdded,
+    warehouse,
+    status,
+    supplierName,
   } = req.body;
 
   if (
-    [ProductId, ProductName, Quantity, CostPrice, SellingPrice, Status].some((field) => !field?.trim())
+    [
+      productId,
+      productName,
+      quantity,
+      costPrice,
+      sellingPrice,
+      status
+    ].some((field) => !field?.trim())
   ) {
     throw new ApiError(401, "All fields are required");
   }
 
-  const productIdIsUnique = await Product.findOne({ ProductId })
+  const productIdIsUnique = await Product.findOne({ productId })
 
   if (productIdIsUnique) {
     throw new ApiError(401, "Product Id must be unique")
   }
 
-  let ProductImageCloudinary = null;
+  let productImageCloudinary = null;
   if (req.file) {
-    const ProductImageLocalPath = req.file.path;
-    ProductImageCloudinary = await uploadOnCloudinary(ProductImageLocalPath);
-    if (!ProductImageCloudinary) {
+    const productImageLocalPath = req.file.path;
+    productImageCloudinary = await uploadOnCloudinary(productImageLocalPath);
+    if (!productImageCloudinary) {
       throw new ApiError(500, "Error uploading image");
     }
   }
 
-  const { year: ExpirationYear, month: ExpirationMonth } = extractYearAndMonth(ExpirationDate);
-  const { year: DateAddedYear, month: DateAddedMonth } = extractYearAndMonth(DateAdded);
-
-  console.table([ProductId,
-    ProductName,
-    Category,
-    Description,
-    Quantity,
-    ExpirationDate,
-    CostPrice,
-    SellingPrice,
-    Notes,
-    DateAdded,
-    Warehouse,
-    Status,
-    SupplierName]);
-
-
-
 
   const product = await Product.create({
-    ProductId,
-    ProductName,
-    Category,
-    Description,
-    Quantity,
-    ExpirationDate,
-    ExpirationYear,
-    ExpirationMonth,
-    CostPrice,
-    SellingPrice,
-    Notes,
-    DateAdded,
-    DateAddedYear,
-    DateAddedMonth,
-    Warehouse,
-    Status,
-    SupplierName,
-    ProductImage: ProductImageCloudinary ? ProductImageCloudinary.url : "",
+    productId,
+    productName,
+    category,
+    description,
+    quantity,
+    expirationDate,
+    costPrice,
+    sellingPrice,
+    notes,
+    dateAdded,
+    warehouse,
+    status,
+    supplierName,
+    productImage: productImageCloudinary ? productImageCloudinary.url : "",
     userId: req.user._id,
   });
 
@@ -195,62 +168,94 @@ const updateProductImage = asyncHandler(async (req, res) => {
 
 const updateProductDetails = asyncHandler(async (req, res) => {
   const productDocsId = req.params.productMongodbId;
+
   const {
-    ProductId,
-    ProductName,
-    Category,
-    Description,
-    Quantity,
-    ExpirationDate,
-    CostPrice,
-    SellingPrice,
-    Notes,
-    DateAdded,
-    Warehouse,
-    Status,
-    SupplierName,
+    productId,
+    productName,
+    category,
+    description,
+    quantity,
+    expirationDate,
+    costPrice,
+    sellingPrice,
+    notes,
+    dateAdded,
+    warehouse,
+    status,
+    supplierName,
   } = req.body;
 
+
+  console.table([productId,
+    productName,
+    category,
+    description,
+    quantity,
+    expirationDate,
+    costPrice,
+    sellingPrice,
+    notes,
+    dateAdded,
+    warehouse,
+    status,
+    supplierName,]);
+
+
+  // Ensure at least one field is provided for update
   if (
     [
-      ProductId,
-      ProductName,
-      Quantity,
-      CostPrice,
-      SellingPrice,
-    ].every(
-      (field) => field === undefined || field === null || field.trim() === ""
-    )
+      productId,
+      productName,
+      category,
+      costPrice,
+      sellingPrice,
+      status
+    ].every((field) => field === undefined || field === null || field.trim() === "")
   ) {
     throw new ApiError(403, "At least one field is required to update");
   }
 
-  // ✅ Extract Year & Month for ExpirationDate and DateAdded
-  const { year: ExpirationYear, month: ExpirationMonth } = extractYearAndMonth(ExpirationDate);
-  const { year: DateAddedYear, month: DateAddedMonth } = extractYearAndMonth(DateAdded);
+
+  // Handle image upload
+  let productImageCloudinary = null;
+  if (req.file) {
+    const productImageLocalPath = req.file.path;
+    productImageCloudinary = await uploadOnCloudinary(productImageLocalPath);
+    if (!productImageCloudinary) {
+      throw new ApiError(500, "Error uploading image");
+    }
+  }
+
+  let oldProductImage = await Product.findById(productDocsId);
+
+  // Construct update object dynamically
+  const updateFields = {
+    productId,
+    productName,
+    category,
+    description,
+    quantity,
+    expirationDate,
+    costPrice,
+    sellingPrice,
+    notes,
+    dateAdded,
+    warehouse,
+    status,
+    supplierName,
+    productImage: productImageCloudinary && productImageCloudinary.url
+      ? productImageCloudinary.url // Use new image if uploaded
+      : oldProductImage.productImage, // Otherwise, keep the existing image
+  };
+
+  if (productImageCloudinary) {
+    updateFields.productImage = productImageCloudinary.url;
+  }
 
   const updateProduct = await Product.findByIdAndUpdate(
     productDocsId,
-    {
-      $set: {
-        ProductId,
-        ProductName,
-        Category,
-        Description,
-        Quantity,
-        ExpirationDate,
-        CostPrice,
-        SellingPrice,
-        Notes,
-        DateAdded,
-        Warehouse,
-        Status,
-        SupplierName,
-      },
-    },
-    {
-      new: true,
-    }
+    { $set: updateFields },
+    { new: true }
   );
 
   return res
@@ -259,10 +264,11 @@ const updateProductDetails = asyncHandler(async (req, res) => {
       new ApiResponse(
         200,
         { updateProduct },
-        "product data are updated successfully"
+        "Product data updated successfully"
       )
     );
 });
+
 
 export {
   createProductItem,

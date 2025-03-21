@@ -28,20 +28,20 @@ function Products() {
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [formData, setFormData] = useState({
-    ProductId: "",
-    ProductName: "",
-    Category: "",
-    Description: "",
-    ProductImage: "",
-    Quantity: "",
-    ExpirationDate: "",
-    CostPrice: "",
-    SellingPrice: "",
-    Notes: "",
-    DateAdded: "",
-    Warehouse: "",
-    Status: "",
-    SupplierName: "",
+    productId: "",
+    productName: "",
+    category: "",
+    description: "",
+    productImage: "",
+    quantity: "",
+    expirationDate: "",
+    costPrice: "",
+    sellingPrice: "",
+    notes: "",
+    dateAdded: "",
+    warehouse: "",
+    status: "",
+    supplierName: "",
   })
   const [filters, setFilters] = useState({
     stockStatus: "All",
@@ -73,34 +73,28 @@ function Products() {
   }
 
   const openEditModal = (product) => {
-    const formatDate = (dateString) => dateString ? new Date(dateString).toISOString().split("T")[0] : "";
-
     setFormData({
       ...product,
-      ExpirationDate: formatDate(product.ExpirationDate),
-      DateAdded: formatDate(product.DateAdded),
     });
-
-
     setIsEditModalOpen(true)
   }
 
   const resetForm = () => {
     setFormData({
-      ProductId: "",
-      ProductName: "",
-      Category: "",
-      Description: "",
-      ProductImage: null,
-      Quantity: "",
-      ExpirationDate: "",
-      CostPrice: "",
-      SellingPrice: "",
-      Notes: "",
-      DateAdded: "",
-      Warehouse: "",
-      Status: "",
-      SupplierName: "",
+      productId: "",
+      productName: "",
+      category: "",
+      description: "",
+      productImage: "",
+      quantity: "",
+      expirationDate: "",
+      costPrice: "",
+      sellingPrice: "",
+      notes: "",
+      dateAdded: "",
+      warehouse: "",
+      status: "",
+      supplierName: "",
     })
   }
 
@@ -121,29 +115,40 @@ function Products() {
     setIsLoading(true);
 
 
-
+    console.table([formData.productId,
+    formData.productName,
+    formData.category,
+    formData.description,
+    formData.quantity,
+    formData.expirationDate,
+    formData.costPrice,
+    formData.sellingPrice,
+    formData.notes,
+    formData.dateAdded,
+    formData.warehouse,
+    formData.status,
+    formData.supplierName,
+    formData.productImage,])
 
 
     try {
-
-
       const res = await axios.post(
         `${PRODUCTS_API_END_POINT}/create-product`,
         {
-          ProductId: formData.ProductId,
-          ProductName: formData.ProductName,
-          Category: formData.Category,
-          Description: formData.Description,
-          Quantity: formData.Quantity,
-          ExpirationDate: formData.ExpirationDate ? new Date(formData.ExpirationDate).toISOString() : null,
-          CostPrice: formData.CostPrice,
-          SellingPrice: formData.SellingPrice,
-          Notes: formData.Notes,
-          DateAdded: formData.DateAdded ? new Date(formData.DateAdded).toISOString() : null,
-          Warehouse: formData.Warehouse,
-          Status: formData.Status,
-          SupplierName: formData.SupplierName,
-          ProductImage: formData.ProductImage,
+          productId: formData.productId,
+          productName: formData.productName,
+          category: formData.category,
+          description: formData.description,
+          quantity: formData.quantity,
+          expirationDate: formData.expirationDate,
+          costPrice: formData.costPrice,
+          sellingPrice: formData.sellingPrice,
+          notes: formData.notes,
+          dateAdded: formData.dateAdded,
+          warehouse: formData.warehouse,
+          status: formData.status,
+          supplierName: formData.supplierName,
+          productImage: formData.productImage,
 
         },
         {
@@ -178,14 +183,30 @@ function Products() {
     try {
       const res = await axios.patch(
         `${PRODUCTS_API_END_POINT}/update-product/${formData._id}`,
-        formData, // Send updated product details
         {
-          headers: { "Content-Type": "application/json" },
+          productId: formData.productId,
+          productName: formData.productName,
+          category: formData.category,
+          description: formData.description,
+          quantity: formData.quantity,
+          expirationDate: formData.expirationDate,
+          costPrice: formData.costPrice,
+          sellingPrice: formData.sellingPrice,
+          notes: formData.notes,
+          dateAdded: formData.dateAdded,
+          warehouse: formData.warehouse,
+          status: formData.status,
+          supplierName: formData.supplierName,
+          productImage: formData.productImage,
+        },
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
           withCredentials: true,
         }
       );
       console.log("id", formData._id);
-
       console.log(res);
       toast.success(res.data.message);
       dispatch(getRefresh()); // Refresh product list from API
@@ -217,7 +238,7 @@ function Products() {
       console.log(res);
       toast.success(res.data.message);
       dispatch(getRefresh())
-      // setProducts(products.filter((product) => product.ProductId !== id))
+      // setProducts(products.filter((product) => product.productId !== id))
 
     } catch (error) {
       toast.error(error.response?.data?.message || "Something went wrong");
@@ -232,16 +253,16 @@ function Products() {
 
   // Filter products based on search term and filters
   const filteredProducts = products.filter((product) => {
-    const matchesSearch = product?.ProductName?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
+    const matchesSearch = product?.productName?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
 
     let matchesStatus = true;
     if (filters.stockStatus !== "all") {
       if (filters.stockStatus === "Low Stock") {
-        matchesStatus = product.Status === "Low Stock";
+        matchesStatus = product.status === "Low Stock";
       } else if (filters.stockStatus === "Available") {
-        matchesStatus = product.Status === "Available";
+        matchesStatus = product.status === "Available";
       } else if (filters.stockStatus === "Out of Stock") {
-        matchesStatus = product.Status === "Out of Stock";
+        matchesStatus = product.status === "Out of Stock";
       }
     }
 
@@ -269,15 +290,15 @@ function Products() {
     return (
       <Card className="overflow-hidden">
         <div className="relative h-48 w-full">
-          <img src={product.ProductImage || CardImage} alt={product.ProductName} className="w-full h-48 object-cover" />
+          <img src={product.productImage || CardImage} alt={product.productName} className="w-full h-48 object-cover" />
         </div>
         <CardHeader className="p-4 pb-0">
-          <h3 className="text-lg font-semibold">{product.ProductName}</h3>
+          <h3 className="text-lg font-semibold">{product.productName}</h3>
         </CardHeader>
         <CardContent className="p-4 pt-2">
-          <p className="text-muted-foreground">{product.Category}</p>
-          <p className="text-lg font-bold mt-1">${product.CostPrice}</p>
-          <Badge className={`mt-2 ${getStatusColor(product.Status)}`}>{product.Status}</Badge>
+          <p className="text-muted-foreground">{product.category}</p>
+          <p className="text-lg font-bold mt-1">${product.costPrice}</p>
+          <Badge className={`mt-2 ${getStatusColor(product.status)}`}>{product.status}</Badge>
         </CardContent>
         <CardFooter className="p-4 pt-0 flex justify-between">
           <Button onClick={() => setSelectedProduct(product)}>View</Button>
@@ -308,14 +329,11 @@ function Products() {
   function ProductDetailsModal() {
     if (!selectedProduct) return null
 
-    const formatDate = (dateString) =>
-      dateString ? new Date(dateString).toISOString().split("T")[0] : "N/A";
-
     return (
       <Dialog open={!!selectedProduct} onOpenChange={() => setSelectedProduct(null)}>
         <DialogContent aria-describedby="dialog-description" className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>{selectedProduct.ProductName}</DialogTitle>
+            <DialogTitle>{selectedProduct.productName}</DialogTitle>
             <DialogDescription id="dialog-description">
               View product details
             </DialogDescription>
@@ -324,52 +342,56 @@ function Products() {
             <TableBody>
               <TableRow>
                 <TableCell className="flex justify-center items-center">
-                  <img className='w-32 h-32 object-cover rounded-lg' alt={selectedProduct.ProductName} src={selectedProduct.ProductImage} />
+                  <img className='w-32 h-32 object-cover rounded-lg' alt={selectedProduct.productName} src={selectedProduct.productImage || CardImage} />
                 </TableCell>
               </TableRow>
               <TableRow>
                 <TableCell className="font-medium">Product Id</TableCell>
-                <TableCell>{selectedProduct.ProductId}</TableCell>
+                <TableCell>{selectedProduct.productId || "N/A"}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="font-medium">Description</TableCell>
+                <TableCell>{selectedProduct.description || "N/A"}</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell className="font-medium">Category</TableCell>
-                <TableCell>{selectedProduct.Category}</TableCell>
+                <TableCell>{selectedProduct.category || "N/A"}</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell className="font-medium">Status</TableCell>
-                <TableCell>{selectedProduct.Status}</TableCell>
+                <TableCell>{selectedProduct.status || "N/A"}</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell className="font-medium">Cost Price</TableCell>
-                <TableCell>₹{Number(selectedProduct.CostPrice).toFixed(2)}</TableCell>
+                <TableCell>₹{Number(selectedProduct.costPrice).toFixed(2)}</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell className="font-medium">Selling Price</TableCell>
-                <TableCell>₹{Number(selectedProduct.SellingPrice).toFixed(2)}</TableCell>
+                <TableCell>₹{Number(selectedProduct.sellingPrice).toFixed(2)}</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell className="font-medium">Supplier</TableCell>
-                <TableCell>{selectedProduct.SupplierName || "N/A"}</TableCell>
+                <TableCell>{selectedProduct.supplierName || "N/A"}</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell className="font-medium">Expiration Date</TableCell>
-                <TableCell>{formatDate(selectedProduct.ExpirationDate)}</TableCell>
+                <TableCell>{selectedProduct.expirationDate || "N/A"}</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell className="font-medium">Stock Quantity</TableCell>
-                <TableCell>{selectedProduct.Quantity || "N/A"}</TableCell>
+                <TableCell>{selectedProduct.quantity || "N/A"}</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell className="font-medium">Warehouse Location</TableCell>
-                <TableCell>{selectedProduct.Warehouse || "N/A"}</TableCell>
+                <TableCell>{selectedProduct.warehouse || "N/A"}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell className="font-medium">Internal Notes</TableCell>
-                <TableCell>{selectedProduct.Notes || "N/A"}</TableCell>
+                <TableCell className="font-medium">Notes</TableCell>
+                <TableCell>{selectedProduct.notes || "N/A"}</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell className="font-medium">Date Added</TableCell>
-                <TableCell>{formatDate(selectedProduct.DateAdded)}</TableCell>
+                <TableCell>{selectedProduct.dateAdded || "N/A"}</TableCell>
               </TableRow>
             </TableBody>
           </Table>
@@ -418,70 +440,70 @@ function Products() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="ProductId">Product Id</Label>
-                  <Input id="ProductId" name="ProductId" value={formData.ProductId} onChange={handleInputChange} required />
+                  <Label htmlFor="productId">Product Id * <span>Unique Id</span></Label>
+                  <Input id="productId" name="productId" value={formData.productId} onChange={handleInputChange} required />
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="ProductName">Product Name</Label>
-                  <Input id="ProductName" name="ProductName" value={formData.ProductName} onChange={handleInputChange} required />
+                  <Label htmlFor="productName">Product Name * </Label>
+                  <Input id="productName" name="productName" value={formData.productName} onChange={handleInputChange} required />
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="Category">Category</Label>
-                  <Input id="Category" name="Category" value={formData.Category} onChange={handleInputChange} />
+                  <Label htmlFor="category">Category</Label>
+                  <Input id="category" name="category" value={formData.category} onChange={handleInputChange} />
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="Description">Description</Label>
-                  <Input id="Description" name="Description" value={formData.Description} onChange={handleInputChange} />
+                  <Label htmlFor="description">Description</Label>
+                  <Input id="description" name="description" value={formData.description} onChange={handleInputChange} />
                 </div>
 
                 {/* {image} */}
                 <div className="grid gap-2">
-                  <Label htmlFor="ProductImage">Product Image</Label>
-                  <Input type="file" id="ProductImage" name="ProductImage" onChange={handleInputChange} accept="image/*" />
+                  <Label htmlFor="productImage">Product Image</Label>
+                  <Input type="file" id="productImage" name="productImage" onChange={handleInputChange} accept="image/*" />
                 </div>
 
 
                 <div className="grid gap-2">
-                  <Label htmlFor="Quantity">Quantity</Label>
-                  <Input type="Number" id="Quantity" name="Quantity" value={formData.Quantity} onChange={handleInputChange} required />
+                  <Label htmlFor="quantity">Quantity * </Label>
+                  <Input type="Number" id="quantity" name="quantity" value={formData.quantity} onChange={handleInputChange} required />
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="ExpirationDate">Expiration Date</Label>
-                  <Input type="date" id="ExpirationDate" name="ExpirationDate" value={formData.ExpirationDate} onChange={handleInputChange} />
+                  <Label htmlFor="expirationDate">Expiration Date</Label>
+                  <Input type="date" id="expirationDate" name="expirationDate" value={formData.expirationDate} onChange={handleInputChange} />
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="CostPrice">Cost Price</Label>
-                  <Input type="Number" id="CostPrice" name="CostPrice" value={formData.CostPrice} onChange={handleInputChange} required />
+                  <Label htmlFor="costPrice">Cost Price * </Label>
+                  <Input type="Number" id="costPrice" name="costPrice" value={formData.costPrice} onChange={handleInputChange} required />
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="SellingPrice">Selling Price</Label>
-                  <Input type="Number" id="SellingPrice" name="SellingPrice" value={formData.SellingPrice} onChange={handleInputChange} required />
+                  <Label htmlFor="sellingPrice">Selling Price * </Label>
+                  <Input type="Number" id="sellingPrice" name="sellingPrice" value={formData.sellingPrice} onChange={handleInputChange} required />
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="Notes">Notes</Label>
-                  <Textarea id="Notes" name="Notes" value={formData.Notes} onChange={handleInputChange} />
+                  <Label htmlFor="notes">Notes</Label>
+                  <Textarea id="notes" name="notes" value={formData.notes} onChange={handleInputChange} />
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="DateAdded">Date Added</Label>
-                  <Input type="date" id="DateAdded" name="DateAdded" value={formData.DateAdded} onChange={handleInputChange} />
+                  <Label htmlFor="dateAdded">Date Added</Label>
+                  <Input type="date" id="dateAdded" name="dateAdded" value={formData.dateAdded} onChange={handleInputChange} />
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="Warehouse">Warehouse</Label>
-                  <Input id="Warehouse" name="Warehouse" value={formData.Warehouse} onChange={handleInputChange} />
+                  <Label htmlFor="warehouse">Warehouse</Label>
+                  <Input id="warehouse" name="warehouse" value={formData.warehouse} onChange={handleInputChange} />
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="Status">Status</Label>
-                  <Select value={formData.Status} onValueChange={(value) => handleSelectChange("Status", value)} required>
+                  <Label htmlFor="status">Status * </Label>
+                  <Select value={formData.status} onValueChange={(value) => handleSelectChange("status", value)} required>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a Status" />
                     </SelectTrigger>
@@ -494,8 +516,8 @@ function Products() {
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="SupplierName">Supplier Name</Label>
-                  <Input id="SupplierName" name="SupplierName" value={formData.SupplierName} onChange={handleInputChange} />
+                  <Label htmlFor="supplierName">Supplier Name</Label>
+                  <Input id="supplierName" name="supplierName" value={formData.supplierName} onChange={handleInputChange} />
                 </div>
               </div>
               <DialogFooter>
@@ -538,70 +560,68 @@ function Products() {
             <form className="space-y-4">
               <div className="grid gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="ProductId">Product Id</Label>
-                  <Input id="ProductId" name="ProductId" value={formData.ProductId} onChange={handleInputChange} required />
+                  <Label htmlFor="productId">Product Id * <span>Unique Id</span></Label>
+                  <Input id="productId" name="productId" value={formData.productId} onChange={handleInputChange} required />
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="ProductName">Product Name</Label>
-                  <Input id="ProductName" name="ProductName" value={formData.ProductName} onChange={handleInputChange} required />
+                  <Label htmlFor="productName">Product Name * </Label>
+                  <Input id="productName" name="productName" value={formData.productName} onChange={handleInputChange} required />
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="Category">Category</Label>
-                  <Input id="Category" name="Category" value={formData.Category} onChange={handleInputChange} />
+                  <Label htmlFor="category">Category</Label>
+                  <Input id="category" name="category" value={formData.category} onChange={handleInputChange} />
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="Description">Description</Label>
-                  <Input id="Description" name="Description" value={formData.Description} onChange={handleInputChange} />
-                </div>
-
-                {/* {image}
-                <div className="grid gap-2">
-                  <Label htmlFor="ProductImage">Product Image</Label>
-                  <Input type="file" id="ProductImage" name="ProductImage" onChange={handleInputChange} accept="image/*" required />
-                </div> */}
-
-
-                <div className="grid gap-2">
-                  <Label htmlFor="Quantity">Quantity</Label>
-                  <Input type="Number" id="Quantity" name="Quantity" value={formData.Quantity} onChange={handleInputChange} required />
+                  <Label htmlFor="description">Description</Label>
+                  <Input id="description" name="description" value={formData.description} onChange={handleInputChange} />
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="ExpirationDate">Expiration Date</Label>
-                  <Input type="date" id="ExpirationDate" name="ExpirationDate" value={formData.ExpirationDate} onChange={handleInputChange} />
+                  <Label htmlFor="productImage">Product Image</Label>
+                  <Input type="file" id="productImage" name="productImage" onChange={handleInputChange} accept="image/*" required />
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="CostPrice">Cost Price</Label>
-                  <Input type="Number" id="CostPrice" name="CostPrice" value={formData.CostPrice} onChange={handleInputChange} required />
+                  <Label htmlFor="quantity">Quantity * </Label>
+                  <Input type="Number" id="quantity" name="quantity" value={formData.quantity} onChange={handleInputChange} required />
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="SellingPrice">Selling Price</Label>
-                  <Input type="Number" id="SellingPrice" name="SellingPrice" value={formData.SellingPrice} onChange={handleInputChange} required />
+                  <Label htmlFor="expirationDate">Expiration Date </Label>
+                  <Input type="date" id="expirationDate" name="expirationDate" value={formData.expirationDate} onChange={handleInputChange} />
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="Notes">Notes</Label>
-                  <Textarea id="Notes" name="Notes" value={formData.Notes} onChange={handleInputChange} />
+                  <Label htmlFor="costPrice">Cost Price * </Label>
+                  <Input type="Number" id="costPrice" name="costPrice" value={formData.costPrice} onChange={handleInputChange} required />
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="DateAdded">Date Added</Label>
-                  <Input type="date" id="DateAdded" name="DateAdded" value={formData.DateAdded} onChange={handleInputChange} />
+                  <Label htmlFor="sellingPrice">Selling Price * </Label>
+                  <Input type="Number" id="sellingPrice" name="sellingPrice" value={formData.sellingPrice} onChange={handleInputChange} required />
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="Warehouse">Warehouse</Label>
-                  <Input id="Warehouse" name="Warehouse" value={formData.Warehouse} onChange={handleInputChange} />
+                  <Label htmlFor="notes">Notes</Label>
+                  <Textarea id="notes" name="notes" value={formData.notes} onChange={handleInputChange} />
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="status">Status</Label>
-                  <Select value={formData.Status} onValueChange={(value) => handleSelectChange("Status", value)} required>
+                  <Label htmlFor="dateAdded">Date Added</Label>
+                  <Input type="date" id="dateAdded" name="dateAdded" value={formData.dateAdded} onChange={handleInputChange} />
+                </div>
+
+                <div className="grid gap-2">
+                  <Label htmlFor="warehouse">Warehouse</Label>
+                  <Input id="warehouse" name="warehouse" value={formData.warehouse} onChange={handleInputChange} />
+                </div>
+
+                <div className="grid gap-2">
+                  <Label htmlFor="status">Status * </Label>
+                  <Select value={formData.status} onValueChange={(value) => handleSelectChange("Status", value)} required>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a Status" />
                     </SelectTrigger>
@@ -614,13 +634,19 @@ function Products() {
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="SupplierName">Supplier Name</Label>
-                  <Input id="SupplierName" name="SupplierName" value={formData.SupplierName} onChange={handleInputChange} />
+                  <Label htmlFor="supplierName">Supplier Name</Label>
+                  <Input id="supplierName" name="supplierName" value={formData.supplierName} onChange={handleInputChange} />
                 </div>
               </div>
               <DialogFooter>
                 <Button onClick={(e) => { e.preventDefault(); setIsEditModalOpen(false) }}>Cancel</Button>
-                <Button onClick={handleUpdate}>Save</Button>
+                {
+                  isLoading ? (
+                    <Button><Loading color='#000' /></Button>
+                  ) : (
+                    <Button onClick={handleUpdate}>Save</Button>
+                  )
+                }
               </DialogFooter>
             </form>
           </DialogContent>

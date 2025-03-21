@@ -15,18 +15,18 @@ const router = Router();
 
 router
   .route("/create-product")
-  .post(verifyJWT, upload.single("ProductImage"), createProductItem);
+  .post(verifyJWT, upload.single("productImage"), createProductItem);
 router.route("/get-all-product").get(verifyJWT, getAllProduct);
 router
   .route("/get-one-product/:productMongodbId")
   .get(verifyJWT, getOneProduct);
 router
   .route("/update-product/:productMongodbId")
-  .patch(verifyJWT, updateProductDetails);
+  .patch(verifyJWT, upload.single("productImage"), updateProductDetails);
 router
   .route("/delete-product/:productMongodbId")
   .delete(verifyJWT, deleteProduct);
 router
   .route("/update-product-image/:productMongodbId")
-  .patch(verifyJWT, upload.single("ProductImage"), updateProductImage);
+  .patch(verifyJWT, upload.single("productImage"), updateProductImage);
 export default router;
