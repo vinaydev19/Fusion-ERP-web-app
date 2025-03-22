@@ -54,46 +54,6 @@ import { SALES_API_END_POINT } from "@/utils/constants"
 import { getRefresh } from "@/redux/saleSlice"
 import Loading from "@/components/commen/Loading"
 
-// Sample products data
-const productsData = [
-  {
-    productId: "PROD-001",
-    productName: "Wireless Headphones",
-    category: "Electronics",
-    description: "Electronics",
-    productImage: "",
-    quantity: 10,
-    expirationDate: "",
-    costPrice: 59.99,
-    sellingPrice: 100.99,
-    notes: "",
-    dateAdded: "",
-    warehouse: "",
-    status: "Available",
-    supplierName: "TechSupplies Inc.",
-  },
-]
-// Sample sales data
-const initialSalesData = [
-  {
-    saleId: "SALE-001",
-    saleItem: {
-      _id: "",
-      productId: "PROD-001",
-      productName: "",
-      productImage: "",
-      sellingPrice: 149.99,
-    },
-    sellingPrice: 149.99,
-    quantity: 2,
-    totalAmount: 299.98,
-    paymentStatus: "Paid",
-    notes: "Corporate client purchase",
-    salesDate: "2023-05-15",
-    customerName: "John Smith",
-  },
-]
-
 function Sales() {
   // State for sales data and search
   const [salesData, setSalesData] = useState([]);
