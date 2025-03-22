@@ -13,17 +13,19 @@ import {
 } from 'redux-persist'
 import storage from 'redux-persist/lib/storage'
 import productSlice from "./productSlice";
+import saleSlice from "./saleSlice";
 
 const persistConfig = {
   key: 'FusionERP',
   version: 1,
   storage,
-  blacklist: ["products"]
+  blacklist: ["products", "sales"]
 }
 
 const rootReducer = combineReducers({
   user: userSlice,
-  product: productSlice
+  product: productSlice,
+  sale: saleSlice
 })
 const persistedReducer = persistReducer(persistConfig, rootReducer)
 

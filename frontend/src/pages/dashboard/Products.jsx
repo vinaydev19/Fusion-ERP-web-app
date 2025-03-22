@@ -17,6 +17,8 @@ import toast from 'react-hot-toast'
 import axios from 'axios'
 import { PRODUCTS_API_END_POINT } from '@/utils/constants'
 import { getRefresh } from '@/redux/productSlice'
+import { format } from "date-fns";
+
 
 
 
@@ -75,8 +77,11 @@ function Products() {
   const openEditModal = (product) => {
     setFormData({
       ...product,
+      dateAdded: product.dateAdded
+        ? format(new Date(product.dateAdded), "yyyy-MM-dd") // ✅ Ensure proper format for input type="date"
+        : format(new Date(), "yyyy-MM-dd"),
     });
-    setIsEditModalOpen(true)
+    setIsEditModalOpen(true);
   }
 
   const resetForm = () => {
@@ -114,22 +119,9 @@ function Products() {
     e.preventDefault();
     setIsLoading(true);
 
-
-    console.table([formData.productId,
-    formData.productName,
-    formData.category,
-    formData.description,
-    formData.quantity,
-    formData.expirationDate,
-    formData.costPrice,
-    formData.sellingPrice,
-    formData.notes,
-    formData.dateAdded,
-    formData.warehouse,
-    formData.status,
-    formData.supplierName,
-    formData.productImage,])
-
+    const formattedDate = formData.dateAdded
+      ? format(new Date(formData.dateAdded), "yyyy-MM-dd")
+      : format(new Date(), "yyyy-MM-dd");
 
     try {
       const res = await axios.post(
@@ -144,7 +136,7 @@ function Products() {
           costPrice: formData.costPrice,
           sellingPrice: formData.sellingPrice,
           notes: formData.notes,
-          dateAdded: formData.dateAdded,
+          dateAdded: formattedDate,
           warehouse: formData.warehouse,
           status: formData.status,
           supplierName: formData.supplierName,
@@ -391,7 +383,9 @@ function Products() {
               </TableRow>
               <TableRow>
                 <TableCell className="font-medium">Date Added</TableCell>
-                <TableCell>{selectedProduct.dateAdded || "N/A"}</TableCell>
+                <TableCell>    {selectedProduct.dateAdded
+                  ? format(new Date(selectedProduct.dateAdded), "dd MMM yyyy") // Example: "23 Mar 2025"
+                  : "N/A"}</TableCell>
               </TableRow>
             </TableBody>
           </Table>
@@ -440,7 +434,7 @@ function Products() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="productId">Product Id * <span>Unique Id</span></Label>
+                  <Label htmlFor="productId">Product Id * (Unique Id)</Label>
                   <Input id="productId" name="productId" value={formData.productId} onChange={handleInputChange} required />
                 </div>
 
@@ -560,7 +554,7 @@ function Products() {
             <form className="space-y-4">
               <div className="grid gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="productId">Product Id * <span>Unique Id</span></Label>
+                  <Label htmlFor="productId">Product Id * (Unique Id)</Label>
                   <Input id="productId" name="productId" value={formData.productId} onChange={handleInputChange} required />
                 </div>
 

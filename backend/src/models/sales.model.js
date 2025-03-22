@@ -34,11 +34,10 @@ const saleSchema = new Schema(
     paymentStatus: {
       type: String,
       required: true,
-      enum: ["Paid", "Pending", "Failed"],
+      enum: ["Paid", "Pending", "Overdue"],
     },
     invoice: {
-      type: Schema.Types.ObjectId,
-      ref: "Invoice",
+      type: String,
     },
     notes: {
       type: String,

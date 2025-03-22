@@ -8,9 +8,6 @@ import { useDispatch, useSelector } from "react-redux"
 const useGetProducts = () => {
     const dispatch = useDispatch()
     const { refresh } = useSelector((state) => state.product);
-
-
-
     useEffect(() => {
         const fetchProducts = async () => {
             try {

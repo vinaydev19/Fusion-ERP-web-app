@@ -59,7 +59,7 @@ const createSaleItem = asyncHandler(async (req, res) => {
 
 const getAllSale = asyncHandler(async (req, res) => {
     const userId = req.user._id;
-    const AllSales = await Sale.find({ userId });
+    const AllSales = await Sale.find({ userId }).populate("saleItem", "productId productName productImage sellingPrice");
 
     return res
         .status(200)
@@ -112,6 +112,17 @@ const updateSaleDetails = asyncHandler(async (req, res) => {
         customerName,
     } = req.body;
 
+
+    console.table([saleId,
+        saleItem,
+        sellingPrice,
+        quantity,
+        totalAmount,
+        paymentStatus,
+        invoice,
+        notes,
+        salesDate,
+        customerName,])
 
     if (
         [saleId, paymentStatus, customerName, notes, invoice].every(
