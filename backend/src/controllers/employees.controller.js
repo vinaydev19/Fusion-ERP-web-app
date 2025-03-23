@@ -6,57 +6,57 @@ import { Employee } from "../models/employees.model.js";
 const createEmployeeItem = asyncHandler(async (req, res) => {
 
     const {
-        EmployeeId,
-        FullName,
-        Email,
-        PhoneNumber,
-        Role,
-        Department,
-        DateOfJoining,
-        Salary,
-        EmploymentStatus,
-        Address,
-        EmergencyContact,
-        Notes,
+        employeeId,
+        fullName,
+        email,
+        phoneNumber,
+        role,
+        department,
+        dateOfJoining,
+        salary,
+        employmentStatus,
+        address,
+        emergencyContact,
+        notes,
     } = req.body;
 
 
     if (
         [
-            EmployeeId,
-            FullName,
-            Email,
-            PhoneNumber,
-            Role,
-            Department,
-            DateOfJoining,
-            Salary,
-            EmploymentStatus,
+            employeeId,
+            fullName,
+            email,
+            phoneNumber,
+            role,
+            department,
+            dateOfJoining,
+            salary,
+            employmentStatus,
         ].some((field) => field === undefined || field === null || String(field).trim() === "")
     ) {
         throw new ApiError(400, "All required fields must be filled");
     }
 
 
-    const employeeIdIsUnique = await Employee.findOne({ EmployeeId })
+    const employeeIdIsUnique = await Employee.findOne({ employeeId })
 
     if (employeeIdIsUnique) {
         throw new ApiError(401, "Employee Id must be unique")
     }
 
     const employee = await Employee.create({
-        EmployeeId,
-        FullName,
-        Email,
-        PhoneNumber,
-        Role,
-        Department,
-        DateOfJoining,
-        Salary,
-        EmploymentStatus,
-        Address,
-        EmergencyContact,
-        Notes,
+        employeeId,
+        fullName,
+        email,
+        phoneNumber,
+        role,
+        department,
+        dateOfJoining,
+        salary,
+        employmentStatus,
+        address,
+        emergencyContact,
+        notes,
         userId: req.user._id,
     });
 
@@ -112,31 +112,31 @@ const deleteEmployee = asyncHandler(async (req, res) => {
 const updateEmployeeDetails = asyncHandler(async (req, res) => {
     const employeeDocsId = req.params.employeeMongodbId;
     const {
-        EmployeeId,
-        FullName,
-        Email,
-        PhoneNumber,
-        Role,
-        Department,
-        DateOfJoining,
-        Salary,
-        EmploymentStatus,
-        Address,
-        EmergencyContact,
-        Notes,
+        employeeId,
+        fullName,
+        email,
+        phoneNumber,
+        role,
+        department,
+        dateOfJoining,
+        salary,
+        employmentStatus,
+        address,
+        emergencyContact,
+        notes,
     } = req.body;
 
     if (
         [
-            EmployeeId,
-            FullName,
-            Email,
-            PhoneNumber,
-            Role,
-            Department,
-            DateOfJoining,
-            Salary,
-            EmploymentStatus,
+            employeeId,
+            fullName,
+            email,
+            phoneNumber,
+            role,
+            department,
+            dateOfJoining,
+            salary,
+            employmentStatus,
         ].every(
             (field) => field === undefined || field === null || field.trim() === ""
         )
@@ -148,18 +148,18 @@ const updateEmployeeDetails = asyncHandler(async (req, res) => {
         employeeDocsId,
         {
             $set: {
-                EmployeeId,
-                FullName,
-                Email,
-                PhoneNumber,
-                Role,
-                Department,
-                DateOfJoining,
-                Salary,
-                EmploymentStatus,
-                Address,
-                EmergencyContact,
-                Notes,
+                employeeId,
+                fullName,
+                email,
+                phoneNumber,
+                role,
+                department,
+                dateOfJoining,
+                salary,
+                employmentStatus,
+                address,
+                emergencyContact,
+                notes,
             },
         },
         {

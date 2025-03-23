@@ -15,12 +15,13 @@ import storage from 'redux-persist/lib/storage'
 import productSlice from "./productSlice";
 import saleSlice from "./saleSlice";
 import financialSlice from "./financialSlice";
+import employeeSlice from "./employeeSlice";
 
 const persistConfig = {
   key: 'FusionERP',
   version: 1,
   storage,
-  blacklist: ["products", "sales", "financial"]
+  blacklist: ["products", "sales", "financial", "employee"]
 }
 
 const rootReducer = combineReducers({
@@ -28,6 +29,7 @@ const rootReducer = combineReducers({
   product: productSlice,
   sale: saleSlice,
   financial: financialSlice,
+  employee: employeeSlice,
 })
 const persistedReducer = persistReducer(persistConfig, rootReducer)
 

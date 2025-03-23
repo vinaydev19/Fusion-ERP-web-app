@@ -2,63 +2,62 @@ import mongoose, { Schema } from "mongoose";
 
 const employeeSchema = new Schema(
   {
-    EmployeeId: {
+    employeeId: {
       type: String,
       required: true,
-      unique: true, 
+      unique: true,
     },
-    FullName: {
+    fullName: {
       type: String,
       required: true,
       trim: true,
     },
-    Email: {
+    email: {
       type: String,
       required: true,
-      unique: true, 
+      unique: true,
       lowercase: true,
       trim: true,
-      match: [/\S+@\S+\.\S+/, "Invalid email format"], 
     },
-    PhoneNumber: {
-      type: String,
-      required: true,
-      trim: true,
-      match: [/^\d{10,15}$/, "Invalid phone number"], 
-    },
-    Role: {
+    phoneNumber: {
       type: String,
       required: true,
       trim: true,
     },
-    Department: {
+    // TODO:
+    role: {
       type: String,
       required: true,
       trim: true,
     },
-    DateOfJoining: {
+    department: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    dateOfJoining: {
       type: Date,
       required: true,
     },
-    Salary: {
+    salary: {
       type: Number,
       required: true,
-      min: 0, 
+      min: 0,
     },
-    EmploymentStatus: {
+    employmentStatus: {
       type: String,
       required: true,
-      enum: ["Active", "On Leave", "Terminated"], 
+      enum: ["Active", "On Leave", "Terminated"],
     },
-    Address: {
+    address: {
       type: String,
       trim: true,
     },
-    EmergencyContact: {
+    emergencyContact: {
       type: String,
       trim: true,
     },
-    Notes: {
+    notes: {
       type: String,
       trim: true,
     },
