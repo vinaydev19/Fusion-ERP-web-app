@@ -5,52 +5,58 @@ import { Financial } from "../models/financialTransactions.model.js";
 
 const createFinancialItem = asyncHandler(async (req, res) => {
     const {
-        TransactionId,
-        Type,
+        transactionId,
+        type,
         financialDate,
-        Amount,
-        Currency,
-        Description,
-        PaymentMethod,
-        Account,
-        Notes,
-        Status,
-        InvoiceId
+        fromAmount,
+        fromCurrency,
+        toAmount,
+        toCurrency,
+        exchangeRate,
+        description,
+        paymentMethod,
+        account,
+        notes,
+        status,
+        invoiceId,
     } = req.body;
 
     if (
         [
-            TransactionId,
-            Type,
+            transactionId,
+            type,
             financialDate,
-            Amount,
-            Currency,
-            PaymentMethod,
-            Status
+            fromAmount,
+            fromCurrency,
+            paymentMethod,
+            status,
         ].some((field) => field === undefined || field === null || String(field).trim() === "")
     ) {
         throw new ApiError(401, "All fields are required");
     }
 
 
-    const transactionIdIsUnique = await Financial.findOne({ TransactionId })
+    const transactionIdIsUnique = await Financial.findOne({ transactionId })
 
     if (transactionIdIsUnique) {
         throw new ApiError(401, "Transaction Id must be unique")
     }
 
     const financial = await Financial.create({
-        TransactionId,
-        Type,
+        transactionId,
+        type,
         financialDate,
-        Amount,
-        Currency,
-        Description,
-        PaymentMethod,
-        Account,
-        Notes,
-        Status,
-        InvoiceId,
+        fromAmount,
+        fromCurrency,
+        toAmount,
+        toCurrency,
+        exchangeRate,
+        description,
+        paymentMethod,
+        account,
+        notes,
+        status,
+        invoiceId,
         userId: req.user._id,
     });
 
@@ -103,28 +109,31 @@ const deleteFinancial = asyncHandler(async (req, res) => {
 const updateFinancialDetails = asyncHandler(async (req, res) => {
     const financialDocsId = req.params.financialMongodbId;
     const {
-        TransactionId,
-        Type,
+        transactionId,
+        type,
         financialDate,
-        Amount,
-        Currency,
-        Description,
-        PaymentMethod,
-        Account,
-        Notes,
-        Status,
-        InvoiceId
+        fromAmount,
+        fromCurrency,
+        toAmount,
+        toCurrency,
+        exchangeRate,
+        description,
+        paymentMethod,
+        account,
+        notes,
+        status,
+        invoiceId,
     } = req.body;
 
     if (
         [
-            TransactionId,
-            Type,
+            transactionId,
+            type,
             financialDate,
-            Amount,
-            Currency,
-            PaymentMethod,
-            Status
+            fromAmount,
+            fromCurrency,
+            paymentMethod,
+            status,
         ].every(
             (field) => field === undefined || field === null || field.trim() === ""
         )
@@ -136,17 +145,20 @@ const updateFinancialDetails = asyncHandler(async (req, res) => {
         financialDocsId,
         {
             $set: {
-                TransactionId,
-                Type,
+                transactionId,
+                type,
                 financialDate,
-                Amount,
-                Currency,
-                Description,
-                PaymentMethod,
-                Account,
-                Notes,
-                Status,
-                InvoiceId
+                fromAmount,
+                fromCurrency,
+                toAmount,
+                toCurrency,
+                exchangeRate,
+                description,
+                paymentMethod,
+                account,
+                notes,
+                status,
+                invoiceId,
             },
         },
         {

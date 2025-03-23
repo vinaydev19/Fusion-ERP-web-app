@@ -2,12 +2,12 @@ import mongoose, { Schema } from "mongoose";
 
 const financialSchema = new Schema(
   {
-    TransactionId: {
+    transactionId: {
       type: String,
       required: true,
       unique: true,
     },
-    Type: {
+    type: {
       type: String,
       required: true,
       enum: ["Income", "Expense"],
@@ -17,41 +17,52 @@ const financialSchema = new Schema(
       required: true,
       default: Date.now,
     },
-    Amount: {
+    fromAmount: {
       type: Number,
       required: true,
       min: 0,
     },
-    Currency: {
+    fromCurrency: {
       type: String,
       required: true,
       trim: true,
     },
-    Description: {
+    toAmount: {
+      type: Number,
+      min: 0,
+    },
+    toCurrency: {
       type: String,
       trim: true,
     },
-    PaymentMethod: {
+    exchangeRate: {
+      type: Number,
+      min: 0,
+    },
+    description: {
+      type: String,
+      trim: true,
+    },
+    paymentMethod: {
       type: String,
       required: true,
-      enum: ["Cash", "Bank Transfer", "Credit Card"],
+      enum: ["Cash", "Bank Transfer", "Credit Card", "Others"],
     },
-    Account: {
+    account: {
       type: String,
       trim: true,
     },
-    Notes: {
+    notes: {
       type: String,
       trim: true,
     },
-    Status: {
+    status: {
       type: String,
       required: true,
-      enum: ["Pending", "Completed", "Failed"],
+      enum: ["Pending", "Completed", "Failed", "Cancelled"],
     },
-    InvoiceId: {
-      type: Schema.Types.ObjectId,
-      ref: "Invoice",
+    invoiceId: {
+      type: String,
     },
     userId: {
       type: Schema.Types.ObjectId,
