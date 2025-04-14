@@ -358,27 +358,52 @@ function Deliveries() {
   }
 
   // Submit edit
-  const handleEditDelivery = (e) => {
-    e.preventDefault()
+  const handleEditDelivery = async (e) => {
+    e.preventDefault();
 
-    // Validate that at least one product is selected
     if (selectedProducts.length === 0) {
-      alert("Please select at least one product")
-      return
+      alert("Please select at least one product");
+      return;
     }
 
     const updatedDelivery = {
       ...formData,
       products: selectedProducts,
       totalPrice: calculateTotalPrice(selectedProducts),
+    };
+
+    setIsLoading(true);
+    try {
+      const res = await axios.patch(
+        `${DELIVERIES_API_END_POINT}/update-delivery/${updatedDelivery._id}`,
+        updatedDelivery,
+        {
+          headers: {
+            "Content-Type": "application/json"
+          },
+          withCredentials: true
+        }
+      );
+
+      toast.success(res.data.message || "Delivery updated successfully");
+      dispatch(getRefresh()); // Refresh data from the backend
+
+      // Update local state after successful update
+      setDeliveriesData((prev) =>
+        prev.map((delivery) =>
+          delivery._id === updatedDelivery._id ? updatedDelivery : delivery
+        )
+      );
+
+      setIsEditModalOpen(false);
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to update delivery");
+      console.error("Error updating delivery:", error);
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-    setDeliveriesData((prev) =>
-      prev.map((delivery) => (delivery._id === updatedDelivery._id ? updatedDelivery : delivery)),
-    )
-
-    setIsEditModalOpen(false)
-  }
 
   // Open delete confirmation
   const handleOpenDeleteAlert = (delivery) => {
