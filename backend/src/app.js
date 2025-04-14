@@ -34,7 +34,7 @@ app.use("/api/v1/sales", salesRouter);
 app.use("/api/v1/purchases", purchaseOrdersRouter);
 app.use("/api/v1/financials", financialRouter);
 app.use("/api/v1/employees", employeesRouter);
-app.use("/api/v1/deliveriess", deliveriesRouter);
+app.use("/api/v1/deliveries", deliveriesRouter);
 app.use("/api/v1/customers", customerRouter);
 
 app.use((err, req, res, next) => {

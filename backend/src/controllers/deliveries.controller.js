@@ -7,68 +7,72 @@ import { Delivery } from "../models/deliveries.model.js";
 const createDeliveryProductItem = asyncHandler(async (req, res) => {
 
     const {
-        DeliveryId,
-        OrderNumber,
-        CustomerName,
-        CustomerContact,
-        DeliveryAddress,
-        Products,
-        DeliveryMethod,
-        TrackingNumber,
-        CourierDetails,
-        PaymentStatus,
-        PaymentMethod,
-        Notes,
+        deliveryId,
+        orderNumber,
+        customerName,
+        customerContact,
+        deliveryAddress,
+        products,
+        deliveryMethod,
+        trackingNumber,
+        courierDetails,
+        paymentStatus,
+        paymentMethod,
+        notes,
+        totalPrice,
     } = req.body;
+
+    console.log("req", req.body);
+
 
 
     if (
         [
-            DeliveryId,
-            OrderNumber,
-            CustomerName,
-            CustomerContact,
-            DeliveryAddress,
-            DeliveryMethod,
-            TrackingNumber,
-            CourierDetails,
-            PaymentStatus,
-            PaymentMethod,
-            Notes,
+            deliveryId,
+            orderNumber,
+            customerName,
+            customerContact,
+            deliveryAddress,
+            deliveryMethod,
+            paymentStatus,
+            paymentMethod,
+            totalPrice,
         ].some((field) => field === undefined || field === null || String(field).trim() === "") ||
-        !Products || !Array.isArray(Products) ||
-        Products.some((product) => !product.ProductId || !product.ProductName || !product.Quantity || !product.UnitPrice || !product.TotalPrice)
+        !products || !Array.isArray(products) ||
+        products.some((product) => !product.productId || !product.productName || !product.productImage || !product.sellingPrice || !product.productMongodbId || !product.quantity)
     ) {
         throw new ApiError(400, "All required fields must be provided");
     }
 
-    const deliveryIdIsUnique = await Delivery.findOne({ DeliveryId })
+    const deliveryIdIsUnique = await Delivery.findOne({ deliveryId })
 
     if (deliveryIdIsUnique) {
         throw new ApiError(401, "Delivery Id must be unique")
     }
 
     
-    const productIds = Products.map((p) => p.ProductId);
-    const existingProductId = await Delivery.findOne({ "Products.ProductId": { $in: productIds } });
 
-    if (existingProductId) {
-        throw new ApiError(401, "Supplier ID must be unique");
+
+    const orderNumberIsUnique = await Delivery.findOne({ orderNumber })
+
+    if (orderNumberIsUnique) {
+        throw new ApiError(401, "Order Number must be unique")
     }
 
     const delivery = await Delivery.create({
-        DeliveryId,
-        OrderNumber,
-        CustomerName,
-        CustomerContact,
-        DeliveryAddress,
-        Products,
-        DeliveryMethod,
-        TrackingNumber,
-        CourierDetails,
-        PaymentStatus,
-        PaymentMethod,
-        Notes,
+        deliveryId,
+        orderNumber,
+        customerName,
+        customerContact,
+        deliveryAddress,
+        products,
+        deliveryMethod,
+        trackingNumber,
+        courierDetails,
+        paymentStatus,
+        paymentMethod,
+        notes,
+        totalPrice,
         userId: req.user._id,
     });
 
@@ -83,7 +87,7 @@ const createDeliveryProductItem = asyncHandler(async (req, res) => {
 
 const getAllDeliveryProduct = asyncHandler(async (req, res) => {
     const userId = req.user._id;
-    const AllDeliverys = await Delivery.find({ userId });
+    const AllDeliverys = await Delivery.find({ userId }).populate("products", "_id productId productName productImage sellingPrice quantity");
 
     return res
         .status(200)
@@ -124,36 +128,35 @@ const deleteDeliveryProduct = asyncHandler(async (req, res) => {
 const updateDeliveryProductDetails = asyncHandler(async (req, res) => {
     const deliveryDocsId = req.params.deliveryMongodbId;
     const {
-        DeliveryId,
-        OrderNumber,
-        CustomerName,
-        CustomerContact,
-        DeliveryAddress,
-        Products,
-        DeliveryMethod,
-        TrackingNumber,
-        CourierDetails,
-        PaymentStatus,
-        PaymentMethod,
-        Notes,
+        deliveryId,
+        orderNumber,
+        customerName,
+        customerContact,
+        deliveryAddress,
+        products,
+        deliveryMethod,
+        trackingNumber,
+        courierDetails,
+        paymentStatus,
+        paymentMethod,
+        notes,
+        totalPrice,
     } = req.body;
 
     if (
         [
-            DeliveryId,
-            OrderNumber,
-            CustomerName,
-            CustomerContact,
-            DeliveryAddress,
-            DeliveryMethod,
-            TrackingNumber,
-            CourierDetails,
-            PaymentStatus,
-            PaymentMethod,
-            Notes,
-        ].some((field) => !field || field.trim() === "") ||
-        !Products || !Array.isArray(Products) ||
-        Products.some((field) => !field || field.trim() === "")
+            deliveryId,
+            orderNumber,
+            customerName,
+            customerContact,
+            deliveryAddress,
+            deliveryMethod,
+            paymentStatus,
+            paymentMethod,
+            totalPrice,
+        ].some((field) => field === undefined || field === null || String(field).trim() === "") ||
+        !products || !Array.isArray(products) ||
+        products.some((product) => !product.productId || !product.productName || !product.productImage || !product.sellingPrice)
     ) {
         throw new ApiError(400, "All required fields must be provided");
     }
@@ -163,18 +166,19 @@ const updateDeliveryProductDetails = asyncHandler(async (req, res) => {
         deliveryDocsId,
         {
             $set: {
-                DeliveryId,
-                OrderNumber,
-                CustomerName,
-                CustomerContact,
-                DeliveryAddress,
-                Products,
-                DeliveryMethod,
-                TrackingNumber,
-                CourierDetails,
-                PaymentStatus,
-                PaymentMethod,
-                Notes,
+                deliveryId,
+                orderNumber,
+                customerName,
+                customerContact,
+                deliveryAddress,
+                products,
+                deliveryMethod,
+                trackingNumber,
+                courierDetails,
+                paymentStatus,
+                paymentMethod,
+                notes,
+                totalPrice,
             },
         },
         {

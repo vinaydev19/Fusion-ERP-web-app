@@ -1,90 +1,95 @@
 import mongoose, { Schema } from "mongoose";
 
-const ProductsSchema = new Schema({
-  ProductId: {
+const productsSchema = new Schema({
+  productMongodbId: {
     type: Schema.Types.ObjectId,
     ref: "Product",
     required: true,
   },
-  ProductName: {
+  productId: {
+    type: String,
+    required: true,
+  },
+  productName: {
     type: String,
     required: true,
     trim: true,
   },
-  Quantity: {
-    type: Number,
+  productImage: {
+    type: String,
     required: true,
-    min: 1,
   },
-  UnitPrice: {
+  sellingPrice: {
     type: Number,
     required: true,
     min: 0,
   },
-  TotalPrice: {
+  quantity: {
     type: Number,
     required: true,
     min: 0,
   },
 });
 
+
 const deliverySchema = new Schema(
   {
-    DeliveryId: {
+    deliveryId: {
       type: String,
       required: true,
       unique: true,
     },
-    OrderNumber: {
-      type: String,
-      required: true,
-      unique: true, 
-    },
-    CustomerName: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    CustomerContact: {
-      type: String,
-      required: true,
-      match: [/^\d{10,15}$/, "Invalid phone number"], 
-    },
-    DeliveryAddress: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    Products: {
-      type: [ProductsSchema],
-      required: true,
-    },
-    DeliveryMethod: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    TrackingNumber: {
+    orderNumber: {
       type: String,
       required: true,
       unique: true,
-      trim: true,
     },
-    CourierDetails: {
-      type: String,
-      trim: true,
-    },
-    PaymentStatus: {
+    customerName: {
       type: String,
       required: true,
-      enum: ["Paid", "Unpaid"],
+      trim: true,
     },
-    PaymentMethod: {
+    customerContact: {
       type: String,
       required: true,
-      enum: ["Cash", "Credit Card", "PayPal", "Bank Transfer"],
     },
-    Notes: {
+    deliveryAddress: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    products: {
+      type: [productsSchema],
+      required: true,
+    },
+    deliveryMethod: {
+      type: String,
+      required: true,
+      trim: true,
+      enum: ["Standard Shipping", "Express Shipping", "Same Day Delivery", "International Shipping"]
+    },
+    trackingNumber: {
+      type: String,
+    },
+    courierDetails: {
+      type: String,
+    },
+    totalPrice: {
+      type: Number,
+      required: true,
+      default: 0, // Default to 0, will be calculated before saving
+    },
+    paymentStatus: {
+      type: String,
+      required: true,
+      enum: ["Pending", "Paid", "Failed"],
+    },
+    paymentMethod: {
+      type: String,
+      required: true,
+      enum: ["Cash", "Bank Transfer", "Credit Card", "Others"],
+    },
+    notes: {
       type: String,
       trim: true,
     },

@@ -16,12 +16,13 @@ import productSlice from "./productSlice";
 import saleSlice from "./saleSlice";
 import financialSlice from "./financialSlice";
 import employeeSlice from "./employeeSlice";
+import deliverieSlice from "./deliverieSlice";
 
 const persistConfig = {
   key: 'FusionERP',
   version: 1,
   storage,
-  blacklist: ["products", "sales", "financial", "employee"]
+  blacklist: ["products", "sales", "financial", "employee", "deliverie"]
 }
 
 const rootReducer = combineReducers({
@@ -30,6 +31,8 @@ const rootReducer = combineReducers({
   sale: saleSlice,
   financial: financialSlice,
   employee: employeeSlice,
+  deliveries: deliverieSlice,
+
 })
 const persistedReducer = persistReducer(persistConfig, rootReducer)
 
