@@ -25,7 +25,7 @@ import purchaseOrdersRouter from "./routes/purchaseOrders.routes.js";
 import financialRouter from "./routes/financialTransactions.routes.js";
 import employeesRouter from "./routes/employees.routes.js";
 import deliveriesRouter from "./routes/deliveries.routes.js";
-import customerRouter from "./routes/Customer.routes.js";
+import customerRouter from "./routes/customer.routes.js";
 
 // router use
 app.use("/api/v1/users", userRouter);
