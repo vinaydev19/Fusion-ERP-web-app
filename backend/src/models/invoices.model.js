@@ -1,105 +1,105 @@
 import mongoose, { Schema } from "mongoose";
 
-const ProductsSchema = new Schema({
-  ProductId: {
+const ProductSchema = new Schema({
+  productMongodbId: {
     type: Schema.Types.ObjectId,
     ref: "Product",
     required: true,
   },
-  ProductName: {
+  productId: {
+    type: String,
+    required: true,
+  },
+  productName: {
     type: String,
     required: true,
     trim: true,
   },
-  Quantity: {
+  quantity: {
     type: Number,
     required: true,
     min: 1,
   },
-  UnitPrice: {
+  sellingPrice: {
     type: Number,
     required: true,
     min: 0,
   },
 });
 
-const invoiceSchema = new Schema(
-  {
-    InvoiceId: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-    InvoiceNumber: {
-      type: String,
-      unique: true,
-      required: true,
-      trim: true,
-    },
-    DateOfIssue: {
-      type: Date,
-      required: true,
-      default: Date.now,
-    },
-    DueDate: {
-      type: Date,
-      required: true,
-    },
-    CustomerName: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    BillingAddress: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    Products: {
-      type: [ProductsSchema],
-      required: true,
-    },
-    Subtotal: {
-      type: Number,
-      required: true,
-      min: 0,
-    },
-    Discount: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
-    TaxRate: {
-      type: Number,
-      required: true,
-      min: 0,
-    },
-    ShippingCost: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
-    TotalAmount: {
-      type: Number,
-      required: true,
-      min: 0,
-    },
-    Status: {
-      type: String,
-      required: true,
-      enum: ["Draft", "Sent", "Paid", "Overdue"],
-    },
-    Notes: {
-      type: String,
-      trim: true,
-    },
-    userId: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
+const invoiceSchema = new Schema({
+  invoiceNumber: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true,
   },
-  { timestamps: true }
-);
+  dateOfIssue: {
+    type: Date,
+    default: Date.now,
+    required: true,
+  },
+  dueDate: {
+    type: Date,
+    required: true,
+  },
+  customerName: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  billingAddress: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  products: {
+    type: [ProductSchema],
+    required: true,
+  },
+  subtotal: {
+    type: Number,
+    required: true,
+    min: 0,
+  },
+  discount: {
+    type: Number,
+    default: 0,
+    min: 0,
+  },
+  taxRate: {
+    type: Number,
+    required: true,
+    min: 0,
+  },
+  shippingCost: {
+    type: Number,
+    default: 0,
+    min: 0,
+  },
+  totalAmount: {
+    type: Number,
+    required: true,
+    min: 0,
+  },
+  status: {
+    type: String,
+    required: true,
+    enum: ["Draft", "Sent", "Paid", "Overdue"],
+    default: "Draft",
+  },
+  notes: {
+    type: String,
+    trim: true,
+  },
+  userId: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
+}, {
+  timestamps: true,
+});
+
 
 export const Invoice = mongoose.model("Invoice", invoiceSchema);

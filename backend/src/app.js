@@ -26,6 +26,7 @@ import financialRouter from "./routes/financialTransactions.routes.js";
 import employeesRouter from "./routes/employees.routes.js";
 import deliveriesRouter from "./routes/deliveries.routes.js";
 import customerRouter from "./routes/customer.routes.js";
+import invoiceRouter from "./routes/invoices.routes.js"
 
 // router use
 app.use("/api/v1/users", userRouter);
@@ -36,6 +37,7 @@ app.use("/api/v1/financials", financialRouter);
 app.use("/api/v1/employees", employeesRouter);
 app.use("/api/v1/deliveries", deliveriesRouter);
 app.use("/api/v1/customers", customerRouter);
+app.use("/api/v1/invoices", invoiceRouter);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
