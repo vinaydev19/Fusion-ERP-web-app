@@ -6,6 +6,9 @@ import React, { useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
+
+
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -13,6 +16,7 @@ function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [showPassword, setShowPassword] = useState(false);
 
   const loginFormHandle = async (e) => {
     e.preventDefault();
@@ -46,76 +50,90 @@ function Login() {
   };
 
   return (
-    <div className="flex flex-col justify-center items-center gap-5 h-screen w-full">
-      <h1 className="font-bold text-3xl">Welcome back</h1>
-      <p className="text-[#372929]">Sign in to your account to continue</p>
-      <form
-        onSubmit={loginFormHandle}
-        className="flex border-2 p-5  rounded-xl flex-col gap-5 w-3/4 md:w-[35%]"
-      >
-        <div className="flex flex-col gap-2">
-          <label htmlFor="Email">Email</label>
-          <input
-            type="text"
-            placeholder="Enter your Email"
-            required
-            className="outline-none rounded-xl px-3 py-2 road border-2"
-            id="Email"
-            name="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          ></input>
-        </div>
-        <div className="flex flex-col gap-2">
-          <label htmlFor="password">Password</label>
-          <input
-            type="password"
-            className="outline-none rounded-xl px-3 py-2 road border-2"
-            placeholder="Enter your Password"
-            required
-            id="password"
-            name="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          ></input>
-        </div>
-        <div className="flex justify-between">
-          <p to="findaccount">
-            <Link
-              to="email-verification"
-              className="text-blue-700 hover:underline text-right"
+    <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 px-4">
+      <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md">
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-2">
+          Welcome Back
+        </h2>
+        <p className="text-center text-gray-500 mb-6">
+          Sign in to your account to continue
+        </p>
+        <form onSubmit={loginFormHandle} className="flex flex-col gap-5">
+          {/* Email Field */}
+          <div className="flex flex-col gap-1">
+            <label htmlFor="email" className="text-gray-700 font-medium">
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              placeholder="Enter your email"
+              required
+              className="px-4 py-2 border-2 rounded-xl focus:outline-none focus:border-blue-600"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+
+          {/* Password Field */}
+          <div className="flex flex-col gap-1 relative">
+            <label htmlFor="password" className="text-gray-700 font-medium">
+              Password
+            </label>
+            <input
+              type={showPassword ? "text" : "password"}
+              id="password"
+              placeholder="Enter your password"
+              required
+              className="px-4 py-2 pr-12 border-2 rounded-xl focus:outline-none focus:border-blue-600"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-[38px] text-gray-500"
             >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+          </div>
+
+          {/* Links */}
+          <div className="flex justify-between text-sm text-blue-700">
+            <Link to="/email-verification" className="hover:underline">
               Email Verify?
             </Link>
-          </p>
-          <p to="findaccount">
-            <Link
-              to="reset-password-verification"
-              className="text-blue-700 hover:underline text-right"
-            >
+            <Link to="/reset-password-verification" className="hover:underline">
               Forgot password?
             </Link>
-          </p>
-        </div>
+          </div>
 
-        {isLoading ? (
-          <button
-            disabled
-            className="flex  hover:cursor-pointer justify-center items-center gap-2 bg-blue-700 p-3 text-white rounded-xl"
-          >
-            <Loading color="#000" />
-          </button>
-        ) : (
-          <button className="flex hover:cursor-pointer  justify-center items-center gap-2 bg-blue-700 p-3 text-white rounded-xl">
-            Login
-          </button>
-        )}
-      </form>
-      <div className="flex gap-1 pb-5">
-        <p>Don't have an account?</p>
-        <Link to="/register" className="text-blue-700 hover:underline">
-          Sign up
-        </Link>
+          {/* Submit Button */}
+          {isLoading ? (
+            <button
+              type="button"
+              disabled
+              className="flex justify-center items-center gap-2 bg-blue-600 text-white py-2 rounded-xl"
+            >
+              <Loading color="#fff" />
+            </button>
+          ) : (
+            <button
+              type="submit"
+              className="bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-xl font-semibold transition-all"
+            >
+              Login
+            </button>
+          )}
+        </form>
+
+        {/* Signup Link */}
+        <div className="mt-6 text-center text-sm text-gray-700">
+          Don't have an account?{" "}
+          <Link to="/register" className="text-blue-700 hover:underline">
+            Sign up
+          </Link>
+        </div>
       </div>
     </div>
   );
