@@ -2,9 +2,15 @@ import mongoose, { Schema } from "mongoose";
 
 const purchaseHistory = new Schema(
   {
-    saleId: {
+    saleMongodbId: {
       type: Schema.Types.ObjectId,
       ref: "Sale"
+    },
+    saleId: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
     },
     saleItem: {
       type: Schema.Types.ObjectId,
@@ -38,7 +44,6 @@ const customerSchema = new Schema(
     },
     email: {
       type: String,
-      unique: true,
       required: true,
       lowercase: true,
       trim: true,

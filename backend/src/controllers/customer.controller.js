@@ -7,46 +7,46 @@ import { Customer } from "../models/customer.model.js";
 const createCustomerItem = asyncHandler(async (req, res) => {
 
     const {
-        CustomerId,
-        FullName,
-        Email,
-        PhoneNumber,
-        Address,
-        PurchaseHistory,
-        Notes
+        customerId,
+        fullName,
+        email,
+        phoneNumber,
+        address,
+        purchaseHistory,
+        notes,
     } = req.body;
 
 
     if (
         [
-            CustomerId,
-            FullName,
-            Email,
-            PhoneNumber,
-            Address
+            customerId,
+            fullName,
+            email,
+            phoneNumber,
+            address,
+            notes
         ].some((field) => !field || field.trim() === "") ||
-        !PurchaseHistory || !Array.isArray(PurchaseHistory) ||
-        PurchaseHistory.some(item => !item.SaleId || !item.PurchaseHistoryDate || item.TotalAmount === undefined)
+        !purchaseHistory || !Array.isArray(purchaseHistory) ||
+        purchaseHistory.some(item => !item.saleId || !item.saleItem || !item.salesDate || item.totalAmount === undefined)
     ) {
         throw new ApiError(400, "All required fields must be provided");
     }
 
-    const customerIdIsUnique = await Customer.findOne({ CustomerId })
+    const customerIdIsUnique = await Customer.findOne({ customerId })
 
     if (customerIdIsUnique) {
         throw new ApiError(401, "Customer Id must be unique")
     }
 
 
-
     const customer = await Customer.create({
-        CustomerId,
-        FullName,
-        Email,
-        PhoneNumber,
-        Address,
-        PurchaseHistory,
-        Notes,
+        customerId,
+        fullName,
+        email,
+        phoneNumber,
+        address,
+        purchaseHistory,
+        notes,
         userId: req.user._id,
     });
 
@@ -61,7 +61,14 @@ const createCustomerItem = asyncHandler(async (req, res) => {
 
 const getAllCustomer = asyncHandler(async (req, res) => {
     const userId = req.user._id;
-    const AllCustomers = await Customer.find({ userId });
+    const AllCustomers = await Customer.find({ userId }).populate({
+        path: "purchaseHistory",
+        select: "saleId saleItem salesDate totalAmount",
+        populate: {
+            path: "saleItem",
+            select: "productName" // Select the fields you want from saleItem
+        }
+    });
 
     return res
         .status(200)
@@ -101,26 +108,27 @@ const deleteCustomer = asyncHandler(async (req, res) => {
 const updateCustomerDetails = asyncHandler(async (req, res) => {
     const customerDocsId = req.params.customerMongodbId;
     const {
-        CustomerId,
-        FullName,
-        Email,
-        PhoneNumber,
-        Address,
-        PurchaseHistory,
-        Notes
+        customerId,
+        fullName,
+        email,
+        phoneNumber,
+        address,
+        purchaseHistory,
+        notes,
     } = req.body;
 
 
     if (
         [
-            CustomerId,
-            FullName,
-            Email,
-            PhoneNumber,
-            Address
+            customerId,
+            fullName,
+            email,
+            phoneNumber,
+            address,
+            notes
         ].some((field) => !field || field.trim() === "") ||
-        !PurchaseHistory || !Array.isArray(PurchaseHistory) ||
-        PurchaseHistory.some(item => !item.SaleId || !item.PurchaseHistoryDate || item.TotalAmount === undefined)
+        !purchaseHistory || !Array.isArray(purchaseHistory) ||
+        purchaseHistory.some(item => !item.saleId || !item.saleItem || !item.salesDate || item.totalAmount === undefined)
     ) {
         throw new ApiError(400, "All required fields must be provided");
     }
@@ -130,13 +138,13 @@ const updateCustomerDetails = asyncHandler(async (req, res) => {
         customerDocsId,
         {
             $set: {
-                CustomerId,
-                FullName,
-                Email,
-                PhoneNumber,
-                Address,
-                PurchaseHistory,
-                Notes
+                customerId,
+                fullName,
+                email,
+                phoneNumber,
+                address,
+                purchaseHistory,
+                notes,
             },
         },
         {
