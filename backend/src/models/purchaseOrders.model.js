@@ -1,9 +1,13 @@
 import mongoose, { Schema } from "mongoose";
 
 const ProductsSchema = new Schema({
-  ProductId: {
+  productMongodbId: {
     type: Schema.Types.ObjectId,
     ref: "Product",
+    required: true,
+  },
+  productId: {
+    type: String,
     required: true,
   },
   ProductName: {
@@ -11,17 +15,17 @@ const ProductsSchema = new Schema({
     required: true,
     trim: true,
   },
-  Quantity: {
+  quantity: {
     type: Number,
     required: true,
     min: 1,
   },
-  UnitPrice: {
+  sellingPrice: {
     type: Number,
     required: true,
     min: 0,
   },
-  TotalPrice: {
+  totalPrice: {
     type: Number,
     min: 0,
     default: function () {
@@ -31,29 +35,29 @@ const ProductsSchema = new Schema({
 });
 
 const supplierSchema = new Schema({
-  SupplierId: {
+  supplierId: {
     type: String,
     required: true,
     unique: true,
     trim: true,
   },
-  Name: {
+  name: {
     type: String,
     required: true,
     trim: true,
   },
-  Contact: {
+  contact: {
     type: String,
     required: true,
     trim: true,
   },
-  Email: {
+  email: {
     type: String,
     required: true,
     trim: true,
     lowercase: true,
   },
-  Address: {
+  address: {
     type: String,
     required: true,
     trim: true,
@@ -62,41 +66,35 @@ const supplierSchema = new Schema({
 
 const purchaseSchema = new Schema(
   {
-    PurchaseId: {
+    purchaseId: {
       type: String,
       required: true,
       unique: true,
       trim: true,
     },
-    Supplier: {
+    supplier: {
       type: [supplierSchema],
       required: true,
     },
-    Products: {
+    products: {
       type: [ProductsSchema],
       required: true,
     },
-    OrderDate: {
+    orderDate: {
       type: Date,
       required: true,
       default: Date.now,
     },
-    DeliveryDate: {
+    deliveryDate: {
       type: Date,
       required: true,
-      validate: {
-        validator: function (value) {
-          return value > this.OrderDate;
-        },
-        message: "Delivery date must be after order date",
-      },
     },
-    PaymentStatus: {
+    paymentStatus: {
       type: String,
       required: true,
       enum: ["Paid", "Unpaid", "Overdue"],
     },
-    Notes: {
+    notes: {
       type: String,
       trim: true,
     },

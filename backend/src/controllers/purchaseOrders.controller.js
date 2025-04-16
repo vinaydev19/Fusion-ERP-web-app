@@ -6,52 +6,54 @@ import { Purchase } from "../models/purchaseOrders.model.js";
 const createPurchaseItem = asyncHandler(async (req, res) => {
 
     const {
-        PurchaseId,
-        Supplier,
-        Products,
-        OrderDate,
-        DeliveryDate,
-        PaymentStatus,
-        Notes,
+        purchaseId,
+        supplier,
+        products,
+        orderDate,
+        deliveryDate,
+        paymentStatus,
+        notes,
     } = req.body;
 
 
     if (
         [
-            PurchaseId,
-            OrderDate,
-            DeliveryDate,
-            PaymentStatus,
-        ].some((field) => !field || field.trim() === "") ||
-        !Supplier || !Array.isArray(Supplier) ||
-        Supplier.some(item => !item.SupplierId || !item.Name || !item.Contact || !item.Email || !item.Address === undefined) ||
-        !Products || !Array.isArray(Products) ||
-        Products.some(item => !item.ProductId || !item.ProductName || !item.Quantity || !item.UnitPrice || !item.TotalPrice === undefined)
+            purchaseId,
+            supplier,
+            products,
+            orderDate,
+            deliveryDate,
+            paymentStatus,
+        ].some((field) => field === undefined || field === null || String(field).trim() === "") ||
+        !supplier || !Array.isArray(supplier) ||
+        supplier.some(item => !item.supplierId || !item.name || !item.contact || !item.email || !item.address === undefined) ||
+        !products || !Array.isArray(products) ||
+        products.some(item => !item.productMongodbId || !item.productId || !item.ProductName || !item.quantity || !item.sellingPrice || !item.totalPrice === undefined)
     ) {
         throw new ApiError(400, "All fields are required");
     }
 
-    const purchaseIdIsUnique = await Purchase.findOne({ PurchaseId })
+    const purchaseIdIsUnique = await Purchase.findOne({ purchaseId, userId: req.user._id })
 
     if (purchaseIdIsUnique) {
         throw new ApiError(401, "purchase Id must be unique")
     }
 
-    const supplierIds = Supplier.map((s) => s.SupplierId);
-    const existingSupplier = await Purchase.findOne({ "Supplier.SupplierId": { $in: supplierIds } });
+    const supplierIds = supplier.map((s) => s.supplierId);
+    const existingSupplier = await Purchase.findOne({ "supplier.supplierId": { $in: supplierIds } });
 
     if (existingSupplier) {
         throw new ApiError(401, "Supplier ID must be unique");
     }
 
     const purchase = await Purchase.create({
-        PurchaseId,
-        Supplier,
-        Products,
-        OrderDate,
-        DeliveryDate,
-        PaymentStatus,
-        Notes,
+        purchaseId,
+        supplier,
+        products,
+        orderDate,
+        deliveryDate,
+        paymentStatus,
+        notes,
         userId: req.user._id,
     });
 
@@ -75,19 +77,6 @@ const getAllPurchase = asyncHandler(async (req, res) => {
         );
 });
 
-const getOnePurchase = asyncHandler(async (req, res) => {
-    const purchaseMongodbId = req.params.purchaseMongodbId;
-
-    const purchase = await Purchase.findById(purchaseMongodbId);
-
-    if (!purchase) {
-        throw new ApiError(404, "purchase not found");
-    }
-
-    return res
-        .status(200)
-        .json(new ApiResponse(200, { purchase }, "Fetched purchase successfully"));
-});
 
 const deletePurchase = asyncHandler(async (req, res) => {
     const purchaseMongodbId = req.params.purchaseMongodbId;
@@ -100,33 +89,35 @@ const deletePurchase = asyncHandler(async (req, res) => {
 
     return res
         .status(200)
-        .json(new ApiResponse(200, {} ,"delect purchase successfully"));
+        .json(new ApiResponse(200, {}, "delect purchase successfully"));
 });
 
 const updatePurchaseDetails = asyncHandler(async (req, res) => {
     const purchaseDocsId = req.params.purchaseMongodbId;
     const {
-        PurchaseId,
-        Supplier,
-        Products,
-        OrderDate,
-        DeliveryDate,
-        PaymentStatus,
-        Notes,
+        purchaseId,
+        supplier,
+        products,
+        orderDate,
+        deliveryDate,
+        paymentStatus,
+        notes,
     } = req.body;
 
 
     if (
         [
-            PurchaseId,
-            OrderDate,
-            DeliveryDate,
-            PaymentStatus,
-        ].some((field) => !field || field.trim() === "") ||
-        !Supplier || !Array.isArray(Supplier) ||
-        Supplier.some(item => !item.SupplierId || !item.Name || !item.Contact || !item.Email || !item.Address === undefined) ||
-        !Products || !Array.isArray(Products) ||
-        Products.some(item => !item.ProductId || !item.ProductName || !item.Quantity || !item.UnitPrice || !item.TotalPrice === undefined)
+            purchaseId,
+            supplier,
+            products,
+            orderDate,
+            deliveryDate,
+            paymentStatus,
+        ].some((field) => field === undefined || field === null || String(field).trim() === "") ||
+        !supplier || !Array.isArray(supplier) ||
+        supplier.some(item => !item.supplierId || !item.name || !item.contact || !item.email || !item.address === undefined) ||
+        !products || !Array.isArray(products) ||
+        products.some(item => !item.productMongodbId || !item.productId || !item.ProductName || !item.quantity || !item.sellingPrice || !item.totalPrice === undefined)
     ) {
         throw new ApiError(400, "All fields are required");
     }
@@ -135,13 +126,13 @@ const updatePurchaseDetails = asyncHandler(async (req, res) => {
         purchaseDocsId,
         {
             $set: {
-                PurchaseId,
-                Supplier,
-                Products,
-                OrderDate,
-                DeliveryDate,
-                PaymentStatus,
-                Notes,
+                purchaseId,
+                supplier,
+                products,
+                orderDate,
+                deliveryDate,
+                paymentStatus,
+                notes,
             },
         },
         {
@@ -163,7 +154,6 @@ const updatePurchaseDetails = asyncHandler(async (req, res) => {
 export {
     createPurchaseItem,
     getAllPurchase,
-    getOnePurchase,
     deletePurchase,
     updatePurchaseDetails,
 };
